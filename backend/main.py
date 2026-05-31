@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routers import auth, listings, feed, search, chat, payments, reviews
-
+import seed_categories
 app = FastAPI(
     title="50% Store API",
     description="Hyperlocal reselling marketplace",
@@ -32,3 +32,9 @@ app.include_router(reviews.router)
 @app.get("/")
 async def root():
     return {"status": "50% Store API running"}
+
+
+@app.get("/seed")
+async def seed_db():
+    await seed_categories.seed()
+    return {"status": "Categories seeded!"}
