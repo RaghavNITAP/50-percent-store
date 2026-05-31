@@ -10,8 +10,8 @@ import ListingDetailPage from "./pages/ListingDetailPage";
 import CreateListingPage from "./pages/CreateListingPage";
 import ChatListPage from "./pages/ChatListPage";
 import ChatPage from "./pages/ChatPage";
-import CheckoutPage from "./pages/CheckoutPage";
-import OrderPage from "./pages/OrderPage";
+import CheckoutPage from "./pages/Checkoutpage";
+import OrderPage from "./pages/Orderpage";
 import ReviewPage from "./pages/ReviewPage";
 import ProfilePage from "./pages/ProfilePage";
 function PrivateRoute({ children }) {
