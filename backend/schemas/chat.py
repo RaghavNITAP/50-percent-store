@@ -26,15 +26,22 @@ class ParticipantOut(BaseModel):
     model_config = {"from_attributes": True}
 
 
-class ListingBrief(BaseModel):
+class ImageBrief(BaseModel):
     id: UUID
-    title: str
-    reselling_price: float
-    images: list = []
+    cloudinary_url: str
+    is_primary: bool
+    display_order: int = 0
 
     model_config = {"from_attributes": True}
 
 
+class ListingBrief(BaseModel):
+    id: UUID
+    title: str
+    reselling_price: float
+    images: List[ImageBrief] = []
+
+    model_config = {"from_attributes": True}
 class ConversationOut(BaseModel):
     id: UUID
     listing_id: Optional[UUID]
