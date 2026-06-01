@@ -44,8 +44,7 @@ export default function ChatPage() {
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 const WS_URL = API_URL.replace("https://", "wss://").replace("http://", "ws://");
-const ws = new WebSocket(`${WS_URL}/chat/ws/${id}?token=${token}`);
-
+const ws = new WebSocket(`${WS_URL}/chat/ws/${conversationId}?token=${token}`);
     ws.onmessage = (e) => {
       const msg = JSON.parse(e.data);
       if (msg.error) return;
