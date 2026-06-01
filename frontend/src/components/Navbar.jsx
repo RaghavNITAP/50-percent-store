@@ -19,11 +19,13 @@ export default function Navbar() {
     <nav className="sticky top-0 z-50 bg-white border-b border-zinc-100 shadow-sm">
       <div className="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
 
-        {/* Brand */}
-        <Link to="/" className="flex items-center gap-0.5">
-          <span className="text-xl font-bold tracking-tight text-zinc-900">50</span>
-          <span className="text-xl font-bold tracking-tight text-blue-600">%</span>
-          <span className="text-xl font-bold tracking-tight text-zinc-900 ml-1">Store</span>
+        {/* Logo */}
+        <Link to="/" className="flex items-center">
+          <img
+            src="/logo.png"
+            alt="50% Store"
+            className="h-9 w-auto object-contain"
+          />
         </Link>
 
         {/* Nav actions */}
