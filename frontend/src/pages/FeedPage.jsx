@@ -41,14 +41,14 @@ export default function FeedPage() {
         if (user?.latitude) {
           res = await feedApi.getMyFeed({ sort_by: sortBy, page, page_size: 20 });
         } else {
-          res = await feedApi.getFeed({
-            lat: 23.2332,
-            lon: 77.4272,
-            radius_km: 50,
-            sort_by: sortBy,
-            page,
-            page_size: 20,
-          });
+      res = await feedApi.getFeed({
+        lat: 23.2332,
+        lon: 77.4272,
+        radius_km: 500,
+        sort_by: sortBy,
+        page,
+        page_size: 20,
+      });
         }
       }
       setListings(res.data.items);
