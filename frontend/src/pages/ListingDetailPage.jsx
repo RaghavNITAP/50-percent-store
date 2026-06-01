@@ -281,7 +281,6 @@ export default function ListingDetailPage() {
                   <div>
                     <span className="font-medium text-zinc-700">Pickup: </span>
                     {listing.pickup_address}
-                    <span className="text-zinc-400 ml-1">· {listing.pickup_radius_km}km radius</span>
                   </div>
                 </div>
               )}
