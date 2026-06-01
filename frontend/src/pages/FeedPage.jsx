@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { Search, MapPin, SlidersHorizontal, X } from "lucide-react";
 import { feedApi, searchApi, listingsApi } from "../api/listings";
 import { useAuthStore } from "../store/authStore";
@@ -94,6 +95,13 @@ export default function FeedPage() {
             <span className="font-medium">{user.locality}, {user.city}</span>
             <span className="text-zinc-300">·</span>
             <span>{user.availability_radius_km}km radius</span>
+          </div>
+        )}
+
+        {!user?.latitude && (
+          <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-xl px-4 py-2.5 mb-3 text-xs text-amber-700">
+            <MapPin size={13} className="flex-shrink-0" />
+            <span>📍 Enable location in your <Link to="/profile" className="font-semibold underline">Profile</Link> to see items near you.</span>
           </div>
         )}
 

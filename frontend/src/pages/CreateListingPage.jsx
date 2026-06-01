@@ -151,7 +151,7 @@ export default function CreateListingPage() {
         pickup_address: form.pickup_address || null,
         pickup_latitude: form.pickup_latitude,
         pickup_longitude: form.pickup_longitude,
-        pickup_radius_km: form.pickup_radius_km,
+        pickup_radius_km: 0,
       };
 
       const fd = new FormData();
@@ -436,26 +436,6 @@ export default function CreateListingPage() {
                 placeholder="e.g. Near MP Nagar Gate 2, Bhopal"
                 className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
-            </div>
-
-            <div>
-              <div className="flex justify-between mb-2">
-                <label className="text-xs font-medium text-gray-500">Pickup Radius</label>
-                <span className="text-xs font-bold text-gray-900">{form.pickup_radius_km} km</span>
-              </div>
-              <input
-                type="range"
-                min="1"
-                max="50"
-                step="1"
-                value={form.pickup_radius_km}
-                onChange={(e) => set("pickup_radius_km", Number(e.target.value))}
-                className="w-full accent-black"
-              />
-              <div className="flex justify-between text-xs text-gray-400 mt-1">
-                <span>1 km</span>
-                <span>50 km</span>
-              </div>
             </div>
           </div>
 
