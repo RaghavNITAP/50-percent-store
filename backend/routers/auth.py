@@ -40,6 +40,9 @@ async def register(payload: UserRegister, db: AsyncSession = Depends(get_db)):
         role=payload.role,
         city=payload.city,
         locality=payload.locality,
+        latitude=payload.latitude,
+        longitude=payload.longitude,
+        availability_radius_km=payload.availability_radius_km or 5.0,
     )
     db.add(user)
     await db.flush()  # get user.id before commit
