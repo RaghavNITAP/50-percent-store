@@ -14,6 +14,7 @@ import CheckoutPage from "./pages/Checkoutpage";
 import OrderPage from "./pages/Orderpage";
 import ReviewPage from "./pages/ReviewPage";
 import ProfilePage from "./pages/ProfilePage";
+import EditListingPage from "./pages/EditListingPage";
 
 function PrivateRoute({ children }) {
   const token = localStorage.getItem("access_token");
@@ -44,6 +45,7 @@ export default function App() {
         <Route path="/order/:id" element={<PrivateRoute><OrderPage /></PrivateRoute>} />
         <Route path="/review/:orderId" element={<PrivateRoute><ReviewPage /></PrivateRoute>} />
         <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
+        <Route path="/listing/:id/edit" element={<PrivateRoute><EditListingPage /></PrivateRoute>} />
       </Routes>
     </BrowserRouter>
   );
