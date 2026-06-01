@@ -46,18 +46,6 @@ export default function Navbar() {
           )}
         </div>
 
-        {/* Mobile: Sell button only (bottom nav handles navigation) */}
-        {user?.role !== "buyer" && (
-          <div className="lg:hidden">
-            <Link
-              to="/sell"
-              className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-xl text-sm font-semibold transition-colors"
-            >
-              <Plus size={14} strokeWidth={2.5} />
-              Sell
-            </Link>
-          </div>
-        )}
       </div>
     </nav>
   );
