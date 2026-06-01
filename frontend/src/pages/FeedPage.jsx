@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Search, MapPin } from "lucide-react";
-import { feedApi, searchApi } from "../api/listings";
+import { feedApi, searchApi, listingsApi } from "../api/listings";
 import { useAuthStore } from "../store/authStore";
 import Navbar from "../components/Navbar";
 import ListingCard from "../components/ListingCard";
