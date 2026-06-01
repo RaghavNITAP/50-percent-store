@@ -271,7 +271,7 @@ async def my_orders(
     result = await db.execute(
         select(Order)
         .where(
-            (Order.buyer_id == current_user.id) | (Order.seller_id == current_user.id)
+            (Order.buyer_id == current_user.id)
         )
         .order_by(Order.created_at.desc())
     )
