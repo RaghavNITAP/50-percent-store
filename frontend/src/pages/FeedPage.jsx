@@ -23,42 +23,33 @@ export default function FeedPage() {
   const [page, setPage] = useState(1);
   const [isSearching, setIsSearching] = useState(false);
 
-  const fetchFeed = async () => {
-    setLoading(true);
-    try {
-      let res;
-      if (searchQuery.trim()) {
-        setIsSearching(true);
-        res = await searchApi.search({
-          q: searchQuery,
-          lat: user?.latitude,
-          lon: user?.longitude,
-          page,
-          page_size: 20,
-        });
-      } else {
-        setIsSearching(false);
-        if (user?.latitude) {
-          res = await feedApi.getMyFeed({ sort_by: sortBy, page, page_size: 20 });
-        } else {
-      res = await feedApi.getFeed({
-        lat: 23.2332,
-        lon: 77.4272,
-        radius_km: 500,
+const fetchFeed = async () => {
+  setLoading(true);
+  try {
+    let res;
+    if (searchQuery.trim()) {
+      setIsSearching(true);
+      res = await searchApi.search({
+        q: searchQuery,
+        page,
+        page_size: 20,
+      });
+    } else {
+      setIsSearching(false);
+      res = await listingsApi.list({
         sort_by: sortBy,
         page,
         page_size: 20,
       });
-        }
-      }
-      setListings(res.data.items);
-      setTotal(res.data.total);
-    } catch (err) {
-      toast.error("Failed to load listings");
-    } finally {
-      setLoading(false);
     }
-  };
+    setListings(res.data.items);
+    setTotal(res.data.total);
+  } catch (err) {
+    toast.error("Failed to load listings");
+  } finally {
+    setLoading(false);
+  }
+};
 
   useEffect(() => {
     fetchFeed();
