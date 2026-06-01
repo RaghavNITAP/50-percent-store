@@ -31,16 +31,25 @@ const fetchFeed = async () => {
       setIsSearching(true);
       res = await searchApi.search({
         q: searchQuery,
+        lat: user?.latitude,
+        lon: user?.longitude,
         page,
         page_size: 20,
       });
     } else {
       setIsSearching(false);
-      res = await listingsApi.list({
-        sort_by: sortBy,
-        page,
-        page_size: 20,
-      });
+      if (user?.latitude) {
+        res = await feedApi.getMyFeed({ sort_by: sortBy, page, page_size: 20 });
+      } else {
+        res = await feedApi.getFeed({
+          lat: 23.2332,
+          lon: 77.4272,
+          radius_km: 500,
+          sort_by: sortBy,
+          page,
+          page_size: 20,
+        });
+      }
     }
     setListings(res.data.items);
     setTotal(res.data.total);
