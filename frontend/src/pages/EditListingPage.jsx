@@ -115,13 +115,13 @@ export default function EditListingPage() {
   };
 
   if (loading) return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center">
       <Loader2 size={24} className="animate-spin text-gray-400" />
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-slate-50">
       <Navbar />
       <div className="max-w-2xl mx-auto px-4 py-8">
         <button onClick={() => navigate(-1)} className="flex items-center gap-1 text-sm text-gray-500 hover:text-black mb-5 transition">
@@ -145,7 +145,7 @@ export default function EditListingPage() {
             <div>
               <label className="block text-xs font-medium text-gray-500 mb-1.5">Title *</label>
               <input value={form.title} onChange={(e) => set("title", e.target.value)} required
-                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-black" />
+                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
             </div>
 
             {categories.length > 0 && (
@@ -154,7 +154,7 @@ export default function EditListingPage() {
                 <div className="flex flex-wrap gap-2">
                   {categories.map((cat) => (
                     <button key={cat.id} type="button" onClick={() => set("category_id", form.category_id === cat.id ? "" : cat.id)}
-                      className={`px-3 py-1.5 rounded-full text-xs font-medium border transition ${form.category_id === cat.id ? "bg-black text-white border-black" : "bg-white text-gray-600 border-gray-200 hover:border-gray-400"}`}>
+                      className={`px-3 py-1.5 rounded-full text-xs font-medium border transition ${form.category_id === cat.id ? "bg-blue-600 text-white border-blue-600" : "bg-white text-gray-600 border-gray-200 hover:border-gray-400"}`}>
                       {cat.name}
                     </button>
                   ))}
@@ -167,7 +167,7 @@ export default function EditListingPage() {
               <div className="grid grid-cols-4 gap-2">
                 {CONDITIONS.map((c) => (
                   <button key={c.value} type="button" onClick={() => set("condition", c.value)}
-                    className={`py-2 rounded-xl text-xs font-medium border transition ${form.condition === c.value ? "bg-black text-white border-black" : "bg-white text-gray-600 border-gray-200 hover:border-gray-400"}`}>
+                    className={`py-2 rounded-xl text-xs font-medium border transition ${form.condition === c.value ? "bg-blue-600 text-white border-blue-600" : "bg-white text-gray-600 border-gray-200 hover:border-gray-400"}`}>
                     {c.label}
                   </button>
                 ))}
@@ -177,13 +177,13 @@ export default function EditListingPage() {
             <div>
               <label className="block text-xs font-medium text-gray-500 mb-1.5">Description *</label>
               <textarea value={form.description} onChange={(e) => set("description", e.target.value)} required rows={3}
-                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-black resize-none" />
+                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" />
             </div>
 
             <div>
               <label className="block text-xs font-medium text-gray-500 mb-1.5">Defects <span className="text-gray-300">(optional)</span></label>
               <textarea value={form.defects} onChange={(e) => set("defects", e.target.value)} rows={2}
-                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-black resize-none" />
+                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" />
             </div>
           </div>
 
@@ -196,7 +196,7 @@ export default function EditListingPage() {
                 <div className="relative">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">₹</span>
                   <input type="number" value={form.original_price} onChange={(e) => set("original_price", e.target.value)} placeholder="0" min="0"
-                    className="w-full border border-gray-200 rounded-xl pl-7 pr-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-black" />
+                    className="w-full border border-gray-200 rounded-xl pl-7 pr-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
                 </div>
               </div>
               <div>
@@ -204,7 +204,7 @@ export default function EditListingPage() {
                 <div className="relative">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">₹</span>
                   <input type="number" value={form.reselling_price} onChange={(e) => set("reselling_price", e.target.value)} placeholder="0" min="1" required
-                    className="w-full border border-gray-200 rounded-xl pl-7 pr-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-black" />
+                    className="w-full border border-gray-200 rounded-xl pl-7 pr-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
                 </div>
               </div>
             </div>
@@ -213,11 +213,11 @@ export default function EditListingPage() {
               <div>
                 <label className="block text-xs font-medium text-gray-500 mb-1.5">Age (years)</label>
                 <input type="number" value={form.age_years} onChange={(e) => set("age_years", e.target.value)} placeholder="e.g. 1.5" min="0" step="0.5"
-                  className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-black" />
+                  className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
               </div>
               <div className="flex flex-col justify-end">
                 <button type="button" onClick={() => set("is_negotiable", !form.is_negotiable)}
-                  className={`flex items-center justify-between w-full px-4 py-2.5 rounded-xl border text-sm font-medium transition ${form.is_negotiable ? "bg-black text-white border-black" : "bg-white text-gray-600 border-gray-200 hover:border-gray-400"}`}>
+                  className={`flex items-center justify-between w-full px-4 py-2.5 rounded-xl border text-sm font-medium transition ${form.is_negotiable ? "bg-blue-600 text-white border-blue-600" : "bg-white text-gray-600 border-gray-200 hover:border-gray-400"}`}>
                   <span>Negotiable</span>
                   {form.is_negotiable ? <ToggleRight size={18} /> : <ToggleLeft size={18} />}
                 </button>
@@ -231,7 +231,7 @@ export default function EditListingPage() {
             <div className="grid grid-cols-2 gap-2">
               {STATUSES.map((s) => (
                 <button key={s.value} type="button" onClick={() => set("status", s.value)}
-                  className={`py-2.5 rounded-xl text-xs font-medium border transition ${form.status === s.value ? "bg-black text-white border-black" : "bg-white text-gray-600 border-gray-200 hover:border-gray-400"}`}>
+                  className={`py-2.5 rounded-xl text-xs font-medium border transition ${form.status === s.value ? "bg-blue-600 text-white border-blue-600" : "bg-white text-gray-600 border-gray-200 hover:border-gray-400"}`}>
                   {s.label}
                 </button>
               ))}
@@ -239,7 +239,7 @@ export default function EditListingPage() {
           </div>
 
           <button type="submit" disabled={submitting}
-            className="w-full bg-black text-white py-3.5 rounded-xl text-sm font-semibold hover:bg-gray-800 disabled:opacity-50 transition">
+            className="w-full bg-blue-600 text-white py-3.5 rounded-xl text-sm font-semibold hover:bg-blue-700 disabled:opacity-50 transition">
             {submitting ? "Saving..." : "Save Changes"}
           </button>
 

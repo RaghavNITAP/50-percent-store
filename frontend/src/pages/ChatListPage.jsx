@@ -32,7 +32,7 @@ export default function ChatListPage() {
     conv.participants.find((p) => p.id !== user?.id) || conv.participants[0];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-slate-50">
       <Navbar />
       <div className="max-w-lg mx-auto px-4 py-6">
         <h1 className="text-lg font-bold mb-5">Messages</h1>
@@ -90,7 +90,7 @@ export default function ChatListPage() {
                   {/* Unread + arrow */}
                   <div className="flex items-center gap-2 flex-shrink-0">
                     {conv.unread_count > 0 && (
-                      <span className="bg-black text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-medium">
+                      <span className="bg-blue-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-medium">
                         {conv.unread_count}
                       </span>
                     )}

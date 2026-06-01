@@ -68,7 +68,7 @@ const fetchFeed = async () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-slate-50">
       <Navbar />
       <div className="max-w-5xl mx-auto px-4 py-6">
         {user?.locality && (
@@ -86,7 +86,7 @@ const fetchFeed = async () => {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search anything... 'red Nike shoes under 500'"
-            className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-black"
+            className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </form>
 
@@ -98,7 +98,7 @@ const fetchFeed = async () => {
                 onClick={() => { setSortBy(opt.value); setPage(1); }}
                 className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border transition ${
                   sortBy === opt.value
-                    ? "bg-black text-white border-black"
+                    ? "bg-blue-600 text-white border-blue-600"
                     : "bg-white text-gray-600 border-gray-200 hover:border-gray-400"
                 }`}
               >

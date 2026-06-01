@@ -43,7 +43,7 @@ const handleSubmit = async (e) => {
       <button
         type="submit"
         disabled={paying}
-        className="w-full bg-black text-white py-3 rounded-xl text-sm font-medium hover:bg-gray-800 disabled:opacity-50 transition flex items-center justify-center gap-2"
+        className="w-full bg-blue-600 text-white py-3 rounded-xl text-sm font-medium hover:bg-blue-700 disabled:opacity-50 transition flex items-center justify-center gap-2"
       >
         {paying ? (
           <><Loader size={15} className="animate-spin" /> Processing...</>
@@ -105,7 +105,7 @@ export default function CheckoutPage() {
   if (!listing) return null;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-slate-50">
       <div className="max-w-md mx-auto px-4 py-6">
         <div className="flex items-center gap-3 mb-6">
           <button onClick={() => navigate(-1)} className="p-1.5 rounded-xl hover:bg-gray-100 transition">
@@ -142,7 +142,7 @@ export default function CheckoutPage() {
                 type="number"
                 value={agreedPrice}
                 onChange={(e) => setAgreedPrice(e.target.value)}
-                className="w-full pl-8 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-black"
+                className="w-full pl-8 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </div>
@@ -154,7 +154,7 @@ export default function CheckoutPage() {
             <button
               onClick={handleCreateOrder}
               disabled={loading}
-              className="w-full bg-black text-white py-3 rounded-xl text-sm font-medium hover:bg-gray-800 disabled:opacity-50 transition"
+              className="w-full bg-blue-600 text-white py-3 rounded-xl text-sm font-medium hover:bg-blue-700 disabled:opacity-50 transition"
             >
               {loading ? "Loading..." : "Proceed to Payment"}
             </button>

@@ -170,7 +170,7 @@ export default function CreateListingPage() {
 
   if (user && user.role === "buyer") {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-slate-50">
         <Navbar />
         <div className="max-w-md mx-auto px-4 py-20 text-center">
           <p className="text-4xl mb-4">🏪</p>
@@ -182,7 +182,7 @@ export default function CreateListingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-slate-50">
       <Navbar />
       <div className="max-w-2xl mx-auto px-4 py-8">
 
@@ -214,12 +214,12 @@ export default function CreateListingPage() {
                   <button
                     type="button"
                     onClick={() => removeImage(idx)}
-                    className="absolute top-1 right-1 bg-black/60 text-white rounded-full p-0.5 hover:bg-black transition"
+                    className="absolute top-1 right-1 bg-blue-600/60 text-white rounded-full p-0.5 hover:bg-blue-600 transition"
                   >
                     <X size={10} />
                   </button>
                   {idx === 0 && (
-                    <span className="absolute bottom-0 inset-x-0 text-center text-white text-[9px] bg-black/50 py-0.5">
+                    <span className="absolute bottom-0 inset-x-0 text-center text-white text-[9px] bg-blue-600/50 py-0.5">
                       Cover
                     </span>
                   )}
@@ -258,7 +258,7 @@ export default function CreateListingPage() {
                 onChange={(e) => set("title", e.target.value)}
                 placeholder="e.g. Nike Air Force 1 White Size 10"
                 required
-                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
 
@@ -273,7 +273,7 @@ export default function CreateListingPage() {
                       onClick={() => set("category_id", form.category_id === cat.id ? "" : cat.id)}
                       className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition ${
                         form.category_id === cat.id
-                          ? "bg-black text-white border-black"
+                          ? "bg-blue-600 text-white border-blue-600"
                           : "bg-white text-gray-600 border-gray-200 hover:border-gray-400"
                       }`}
                     >
@@ -294,7 +294,7 @@ export default function CreateListingPage() {
                     onClick={() => set("condition", c.value)}
                     className={`py-2 rounded-xl text-xs font-medium border transition ${
                       form.condition === c.value
-                        ? "bg-black text-white border-black"
+                        ? "bg-blue-600 text-white border-blue-600"
                         : "bg-white text-gray-600 border-gray-200 hover:border-gray-400"
                     }`}
                   >
@@ -348,7 +348,7 @@ export default function CreateListingPage() {
                     onChange={(e) => set("original_price", e.target.value)}
                     placeholder="0"
                     min="0"
-                    className="w-full border border-gray-200 rounded-xl pl-7 pr-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+                    className="w-full border border-gray-200 rounded-xl pl-7 pr-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
               </div>
@@ -363,7 +363,7 @@ export default function CreateListingPage() {
                     placeholder="0"
                     min="1"
                     required
-                    className="w-full border border-gray-200 rounded-xl pl-7 pr-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+                    className="w-full border border-gray-200 rounded-xl pl-7 pr-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
               </div>
@@ -381,7 +381,7 @@ export default function CreateListingPage() {
                   placeholder="e.g. 1.5"
                   min="0"
                   step="0.5"
-                  className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+                  className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               <div className="flex flex-col justify-end">
@@ -390,7 +390,7 @@ export default function CreateListingPage() {
                   onClick={() => set("is_negotiable", !form.is_negotiable)}
                   className={`flex items-center justify-between w-full px-4 py-2.5 rounded-xl border text-sm font-medium transition ${
                     form.is_negotiable
-                      ? "bg-black text-white border-black"
+                      ? "bg-blue-600 text-white border-blue-600"
                       : "bg-white text-gray-600 border-gray-200 hover:border-gray-400"
                   }`}
                 >
@@ -434,7 +434,7 @@ export default function CreateListingPage() {
                 value={form.pickup_address}
                 onChange={(e) => set("pickup_address", e.target.value)}
                 placeholder="e.g. Near MP Nagar Gate 2, Bhopal"
-                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
 
@@ -463,7 +463,7 @@ export default function CreateListingPage() {
           <button
             type="submit"
             disabled={submitting || !form.pickup_latitude}
-            className="w-full bg-black text-white py-3.5 rounded-xl text-sm font-semibold hover:bg-gray-800 disabled:opacity-50 transition"
+            className="w-full bg-blue-600 text-white py-3.5 rounded-xl text-sm font-semibold hover:bg-blue-700 disabled:opacity-50 transition"
           >
             {submitting ? "Posting..." : "Post Listing"}
           </button>
@@ -509,7 +509,7 @@ function PolishableField({ label, optional, value, onChange, onPolish, loading, 
         placeholder={placeholder}
         required={required}
         rows={rows}
-        className={`w-full border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-black resize-none transition ${
+        className={`w-full border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none transition ${
           done ? "border-emerald-300 bg-emerald-50/30" : "border-gray-200"
         }`}
       />

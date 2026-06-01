@@ -87,7 +87,7 @@ export default function ReviewPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-slate-50">
         <Navbar />
         <div className="max-w-md mx-auto px-4 py-20 text-center">
           <div className="w-8 h-8 border-2 border-gray-200 border-t-black rounded-full animate-spin mx-auto" />
@@ -99,7 +99,7 @@ export default function ReviewPage() {
   // Order not completed
   if (order && order.status !== "completed") {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-slate-50">
         <Navbar />
         <div className="max-w-md mx-auto px-4 py-20 text-center">
           <p className="text-4xl mb-3">🔒</p>
@@ -109,7 +109,7 @@ export default function ReviewPage() {
           </p>
           <button
             onClick={() => navigate(-1)}
-            className="mt-6 px-5 py-2.5 bg-black text-white rounded-xl text-sm font-medium"
+            className="mt-6 px-5 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-medium"
           >
             Go Back
           </button>
@@ -121,7 +121,7 @@ export default function ReviewPage() {
   // Already reviewed — show submitted review
   if (existingReview && !done) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-slate-50">
         <Navbar />
         <div className="max-w-md mx-auto px-4 py-8">
           <button
@@ -158,7 +158,7 @@ export default function ReviewPage() {
   // Submitted successfully
   if (done) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-slate-50">
         <Navbar />
         <div className="max-w-md mx-auto px-4 py-20 text-center">
           <CheckCircle size={48} className="text-emerald-500 mx-auto mb-4" />
@@ -175,7 +175,7 @@ export default function ReviewPage() {
           </div>
           <button
             onClick={() => navigate("/profile")}
-            className="bg-black text-white px-6 py-3 rounded-xl text-sm font-medium hover:bg-gray-800 transition"
+            className="bg-blue-600 text-white px-6 py-3 rounded-xl text-sm font-medium hover:bg-blue-700 transition"
           >
             View Profile
           </button>
@@ -187,7 +187,7 @@ export default function ReviewPage() {
   const activeRating = hovered || rating;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-slate-50">
       <Navbar />
       <div className="max-w-md mx-auto px-4 py-8">
 
@@ -270,14 +270,14 @@ export default function ReviewPage() {
               onChange={(e) => setComment(e.target.value)}
               placeholder="How was the seller? Was the item as described?"
               rows={3}
-              className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-black resize-none"
+              className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
             />
           </div>
 
           <button
             type="submit"
             disabled={submitting || rating === 0}
-            className="w-full bg-black text-white py-3.5 rounded-xl text-sm font-semibold hover:bg-gray-800 disabled:opacity-50 transition"
+            className="w-full bg-blue-600 text-white py-3.5 rounded-xl text-sm font-semibold hover:bg-blue-700 disabled:opacity-50 transition"
           >
             {submitting ? "Submitting..." : "Submit Review"}
           </button>

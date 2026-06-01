@@ -32,7 +32,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-sm p-8">
         <h1 className="text-2xl font-bold text-gray-900 mb-1">Create account</h1>
         <p className="text-gray-500 text-sm mb-8">Join 50% Store</p>
@@ -44,7 +44,7 @@ export default function RegisterPage() {
               name="full_name"
               value={form.full_name}
               onChange={handleChange}
-              className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+              className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Rahul Sharma"
               required
             />
@@ -57,7 +57,7 @@ export default function RegisterPage() {
               type="email"
               value={form.email}
               onChange={handleChange}
-              className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+              className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="you@example.com"
               required
             />
@@ -70,7 +70,7 @@ export default function RegisterPage() {
               type="password"
               value={form.password}
               onChange={handleChange}
-              className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+              className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="min 8 characters"
               required
             />
@@ -83,7 +83,7 @@ export default function RegisterPage() {
                 name="city"
                 value={form.city}
                 onChange={handleChange}
-                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Bhopal"
               />
             </div>
@@ -93,7 +93,7 @@ export default function RegisterPage() {
                 name="locality"
                 value={form.locality}
                 onChange={handleChange}
-                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="MP Nagar"
               />
             </div>
@@ -109,7 +109,7 @@ export default function RegisterPage() {
                   onClick={() => setForm({ ...form, role: r })}
                   className={`py-2 rounded-xl text-sm font-medium border transition ${
                     form.role === r
-                      ? "bg-black text-white border-black"
+                      ? "bg-blue-600 text-white border-blue-600"
                       : "bg-white text-gray-600 border-gray-200 hover:border-gray-400"
                   }`}
                 >
@@ -122,7 +122,7 @@ export default function RegisterPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-black text-white py-3 rounded-xl text-sm font-medium hover:bg-gray-800 disabled:opacity-50 transition"
+            className="w-full bg-blue-600 text-white py-3 rounded-xl text-sm font-medium hover:bg-blue-700 disabled:opacity-50 transition"
           >
             {loading ? "Creating account..." : "Create account"}
           </button>

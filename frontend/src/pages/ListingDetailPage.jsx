@@ -81,7 +81,7 @@ const res = await chatApi.startConversation({
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-slate-50">
         <Navbar />
         <div className="max-w-4xl mx-auto px-4 py-8">
           <div className="grid md:grid-cols-2 gap-8">
@@ -108,7 +108,7 @@ const res = await chatApi.startConversation({
     : null;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-slate-50">
       <Navbar />
 
       <div className="max-w-4xl mx-auto px-4 py-6">
@@ -159,7 +159,7 @@ const res = await chatApi.startConversation({
 
               {/* Status badge */}
               {listing.status !== "active" && (
-                <div className="absolute inset-0 bg-black/40 flex items-center justify-center rounded-2xl">
+                <div className="absolute inset-0 bg-blue-600/40 flex items-center justify-center rounded-2xl">
                   <span className="bg-white text-black font-bold px-4 py-2 rounded-full uppercase text-sm tracking-wide">
                     {listing.status}
                   </span>
@@ -175,7 +175,7 @@ const res = await chatApi.startConversation({
                     key={img.id}
                     onClick={() => setActiveImg(idx)}
                     className={`flex-shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 transition ${
-                      activeImg === idx ? "border-black" : "border-transparent"
+                      activeImg === idx ? "border-blue-600" : "border-transparent"
                     }`}
                   >
                     <img src={img.cloudinary_url} alt="" className="w-full h-full object-cover" />
@@ -251,7 +251,7 @@ const res = await chatApi.startConversation({
                 </div>
                 <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-black rounded-full transition-all"
+                    className="h-full bg-blue-600 rounded-full transition-all"
                     style={{ width: `${listing.ai_quality_score}%` }}
                   />
                 </div>
@@ -301,7 +301,7 @@ const res = await chatApi.startConversation({
                 </button>
                 <button
                   onClick={handleBuy}
-                  className="flex-1 flex items-center justify-center gap-2 bg-black text-white py-3 rounded-xl text-sm font-medium hover:bg-gray-800 transition"
+                  className="flex-1 flex items-center justify-center gap-2 bg-blue-600 text-white py-3 rounded-xl text-sm font-medium hover:bg-blue-700 transition"
                 >
                   <ShoppingBag size={16} />
                   Buy Now

@@ -114,7 +114,7 @@ export default function ProfilePage() {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-slate-50">
       <Navbar />
       <div className="max-w-2xl mx-auto px-4 py-8">
 
@@ -155,7 +155,7 @@ export default function ProfilePage() {
                   <button
                     onClick={handleSave}
                     disabled={saving}
-                    className="p-2 rounded-xl bg-black text-white hover:bg-gray-800 transition disabled:opacity-50"
+                    className="p-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition disabled:opacity-50"
                   >
                     {saving ? <Loader2 size={15} className="animate-spin" /> : <Check size={15} />}
                   </button>
@@ -184,7 +184,7 @@ export default function ProfilePage() {
                 <input
                   value={editForm.full_name}
                   onChange={(e) => setEditForm((f) => ({ ...f, full_name: e.target.value }))}
-                  className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+                  className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               <div className="grid grid-cols-2 gap-3">
@@ -194,7 +194,7 @@ export default function ProfilePage() {
                     value={editForm.city}
                     onChange={(e) => setEditForm((f) => ({ ...f, city: e.target.value }))}
                     placeholder="e.g. Bhopal"
-                    className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
                 <div>
@@ -203,7 +203,7 @@ export default function ProfilePage() {
                     value={editForm.locality}
                     onChange={(e) => setEditForm((f) => ({ ...f, locality: e.target.value }))}
                     placeholder="e.g. MP Nagar"
-                    className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
               </div>
@@ -246,7 +246,7 @@ export default function ProfilePage() {
               onClick={() => setTab(t.id)}
               className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-medium transition ${
                 tab === t.id
-                  ? "bg-black text-white"
+                  ? "bg-blue-600 text-white"
                   : "text-gray-500 hover:text-black"
               }`}
             >
@@ -402,7 +402,7 @@ function Empty({ icon, title, sub, action }) {
       {action && (
         <Link
           to={action.to}
-          className="inline-block px-4 py-2 bg-black text-white text-xs font-medium rounded-xl hover:bg-gray-800 transition"
+          className="inline-block px-4 py-2 bg-blue-600 text-white text-xs font-medium rounded-xl hover:bg-blue-700 transition"
         >
           {action.label}
         </Link>

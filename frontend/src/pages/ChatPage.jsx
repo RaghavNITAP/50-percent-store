@@ -154,7 +154,7 @@ const ws = new WebSocket(`${WS_URL}/chat/ws/${conversationId}?token=${token}`);
                 <div className={`max-w-[75%] ${isMe ? "items-end" : "items-start"} flex flex-col gap-1`}>
                   {msg.message_type === "offer" ? (
                     <div className={`rounded-2xl px-4 py-3 border-2 ${
-                      isMe ? "border-black bg-black text-white" : "border-gray-200 bg-gray-50"
+                      isMe ? "border-blue-600 bg-blue-600 text-white" : "border-gray-200 bg-gray-50"
                     }`}>
                       <div className="flex items-center gap-2">
                         <Tag size={14} />
@@ -171,7 +171,7 @@ const ws = new WebSocket(`${WS_URL}/chat/ws/${conversationId}?token=${token}`);
                   ) : (
                     <div className={`rounded-2xl px-4 py-2.5 text-sm ${
                       isMe
-                        ? "bg-black text-white"
+                        ? "bg-blue-600 text-white"
                         : "bg-gray-100 text-gray-900"
                     }`}>
                       {msg.content}
@@ -214,7 +214,7 @@ const ws = new WebSocket(`${WS_URL}/chat/ws/${conversationId}?token=${token}`);
         <button
           onClick={() => setOfferMode(!offerMode)}
           className={`p-2 rounded-xl border transition flex-shrink-0 ${
-            offerMode ? "border-black bg-black text-white" : "border-gray-200 text-gray-400 hover:border-gray-400"
+            offerMode ? "border-blue-600 bg-blue-600 text-white" : "border-gray-200 text-gray-400 hover:border-gray-400"
           }`}
           title="Make an offer"
         >
@@ -228,13 +228,13 @@ const ws = new WebSocket(`${WS_URL}/chat/ws/${conversationId}?token=${token}`);
           placeholder="Message..."
           rows={1}
           disabled={offerMode}
-          className="flex-1 resize-none border border-gray-200 rounded-2xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-black disabled:opacity-40 max-h-32"
+          className="flex-1 resize-none border border-gray-200 rounded-2xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-40 max-h-32"
         />
 
         <button
           onClick={sendMessage}
           disabled={offerMode ? !offerAmount : !input.trim()}
-          className="p-2.5 bg-black text-white rounded-2xl hover:bg-gray-800 disabled:opacity-40 transition flex-shrink-0"
+          className="p-2.5 bg-blue-600 text-white rounded-2xl hover:bg-blue-700 disabled:opacity-40 transition flex-shrink-0"
         >
           <Send size={16} />
         </button>

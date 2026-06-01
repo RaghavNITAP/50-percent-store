@@ -51,7 +51,7 @@ export default function OrderPage() {
   const status = STATUS_LABELS[order.status] || STATUS_LABELS.pending;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-slate-50">
       <div className="max-w-md mx-auto px-4 py-10">
         {/* Success icon */}
         <div className="text-center mb-8">
@@ -99,7 +99,7 @@ export default function OrderPage() {
             <button
               onClick={handleComplete}
               disabled={completing}
-              className="w-full bg-black text-white py-3 rounded-xl text-sm font-medium hover:bg-gray-800 disabled:opacity-50 transition"
+              className="w-full bg-blue-600 text-white py-3 rounded-xl text-sm font-medium hover:bg-blue-700 disabled:opacity-50 transition"
             >
               {completing ? "Confirming..." : "I received the item ✓"}
             </button>
@@ -108,7 +108,7 @@ export default function OrderPage() {
           {order.status === "completed" && (
             <Link
               to={`/review/${orderId}`}
-              className="block w-full text-center bg-black text-white py-3 rounded-xl text-sm font-medium hover:bg-gray-800 transition"
+              className="block w-full text-center bg-blue-600 text-white py-3 rounded-xl text-sm font-medium hover:bg-blue-700 transition"
             >
               Leave a Review
             </Link>
