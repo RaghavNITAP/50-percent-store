@@ -6,11 +6,11 @@ const HIDDEN_PATHS = [
   /^\/login/,
   /^\/register/,
   /^\/sell/,
+  /^\/listing\/.+/,   // has its own fixed CTA bar
   /^\/chat\/.+/,
   /^\/checkout\/.+/,
   /^\/order\/.+/,
   /^\/review\/.+/,
-  /^\/listing\/.+\/edit/,
 ];
 
 export default function BottomNav() {
