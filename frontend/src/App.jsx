@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import { useAuthStore } from "./store/authStore";
 import BottomNav from "./components/BottomNav";
+import InstallBanner from "./components/InstallBanner";
 
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
@@ -54,6 +55,7 @@ export default function App() {
         <Route path="/listing/:id/edit" element={<PrivateRoute><EditListingPage /></PrivateRoute>} />
       </Routes>
       <BottomNav />
+      <InstallBanner />
     </BrowserRouter>
   );
 }
