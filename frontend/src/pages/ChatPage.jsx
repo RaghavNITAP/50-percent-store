@@ -42,10 +42,9 @@ export default function ChatPage() {
     const token = localStorage.getItem("access_token");
     if (!token) return;
 
-    const ws = new WebSocket(
-      `ws://localhost:8000/chat/ws/${conversationId}?token=${token}`
-    );
-
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+const WS_URL = API_URL.replace("https://", "wss://").replace("http://", "ws://");
+const ws = new WebSocket(`${WS_URL}/chat/ws/${conversationId}?token=${token}`);
     ws.onmessage = (e) => {
       const msg = JSON.parse(e.data);
       if (msg.error) return;

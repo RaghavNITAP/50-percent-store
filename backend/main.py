@@ -33,6 +33,7 @@ app.include_router(reviews.router)
 async def root():
     return {"status": "50% Store API running"}
 
+
 @app.get("/seed")
 async def seed_db():
     await seed_categories.seed()
