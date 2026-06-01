@@ -45,12 +45,14 @@ export default function ProfilePage() {
 
   const [editForm, setEditForm] = useState({
     full_name: "", city: "", locality: "", availability_radius_km: 5,
+    latitude: null, longitude: null,
   });
 
   const [listings,   setListings]   = useState([]);
   const [orders,     setOrders]     = useState([]);
   const [reviews,    setReviews]    = useState([]);
   const [tabLoading, setTabLoading] = useState(false);
+  const [locating, setLocating] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -59,6 +61,8 @@ export default function ProfilePage() {
         city: user.city || "",
         locality: user.locality || "",
         availability_radius_km: user.availability_radius_km || 5,
+        latitude: user.latitude || null,
+        longitude: user.longitude || null,
       });
     }
   }, [user]);
@@ -84,6 +88,23 @@ export default function ProfilePage() {
     }
   }, [tab, user]);
 
+  const detectLocation = () => {
+  if (!navigator.geolocation) return toast.error("Geolocation not supported");
+  setLocating(true);
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      setEditForm((f) => ({ ...f, latitude: pos.coords.latitude, longitude: pos.coords.longitude }));
+      setLocating(false);
+      toast.success("Location updated");
+    },
+    () => { setLocating(false); toast.error("Could not detect location"); }
+  );
+};
+
+
+
+
+  
   const handleSave = async () => {
     setSaving(true);
     try {
@@ -92,6 +113,8 @@ export default function ProfilePage() {
         city: editForm.city || undefined,
         locality: editForm.locality || undefined,
         availability_radius_km: editForm.availability_radius_km,
+        latitude: editForm.latitude || undefined,
+        longitude: editForm.longitude || undefined,
       });
       await fetchMe();
       setEditing(false);
@@ -172,6 +195,14 @@ export default function ProfilePage() {
                       className="w-full border border-zinc-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
+                  <button type="button" onClick={detectLocation} disabled={locating}
+                    className={`w-full flex items-center justify-center gap-2 border rounded-xl py-2 text-sm transition disabled:opacity-50 ${
+                      editForm.latitude ? "border-emerald-300 text-emerald-700 bg-emerald-50" : "border-zinc-200 text-zinc-600 hover:border-zinc-400"
+                    }`}>
+                    {locating ? <><Loader2 size={13} className="animate-spin" />Detecting...</>
+                      : editForm.latitude ? <><MapPin size={13} />Location set ✓</>
+                      : <><MapPin size={13} />Detect my location</>}
+                  </button>
                   <div>
                     <div className="flex justify-between text-xs text-zinc-500 mb-1">
                       <span>Discovery Radius</span>
