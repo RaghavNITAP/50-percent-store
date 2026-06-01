@@ -25,13 +25,11 @@ def listing_query():
     )
 
 
-# ─── Main feed — radius filtered ─────────────────────────────────────────────
-
 @router.get("", response_model=ListingList)
 async def get_feed(
-    lat: float = Query(..., description="Buyer latitude"),
-    lon: float = Query(..., description="Buyer longitude"),
-    radius_km: float = Query(5.0, ge=0.5, le=50.0, description="Search radius in km"),
+    lat: float = Query(...),
+    lon: float = Query(...),
+    radius_km: float = Query(5.0, ge=0.5, le=500.0),
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
     category_id: Optional[UUID] = None,
@@ -55,8 +53,6 @@ async def get_feed(
     if is_negotiable is not None:
         filters.append(Listing.is_negotiable == is_negotiable)
 
-    # Haversine distance filter — zones must overlap
-    # distance between centers <= buyer_radius + seller_radius
     distance_expr = text(f"""
         (6371.0 * acos(
             LEAST(1.0,
@@ -67,27 +63,25 @@ async def get_feed(
         ))
     """)
 
-radius_filter = text(f"""
-    (
-        pickup_latitude IS NULL
-        OR pickup_longitude IS NULL
-        OR (6371.0 * acos(
-            LEAST(1.0,
-                cos(radians({lat})) * cos(radians(pickup_latitude))
-                * cos(radians(pickup_longitude) - radians({lon}))
-                + sin(radians({lat})) * sin(radians(pickup_latitude))
-            )
-        )) <= ({radius_km} + pickup_radius_km)
-    )
-""")
+    radius_filter = text(f"""
+        (
+            pickup_latitude IS NULL
+            OR pickup_longitude IS NULL
+            OR (6371.0 * acos(
+                LEAST(1.0,
+                    cos(radians({lat})) * cos(radians(pickup_latitude))
+                    * cos(radians(pickup_longitude) - radians({lon}))
+                    + sin(radians({lat})) * sin(radians(pickup_latitude))
+                )
+            )) <= ({radius_km} + pickup_radius_km)
+        )
+    """)
 
     filters.append(radius_filter)
 
-    # Count
     count_q = select(func.count()).select_from(Listing).where(and_(*filters))
     total = (await db.execute(count_q)).scalar()
 
-    # Sort
     if sort_by == "price_asc":
         order = Listing.reselling_price.asc()
     elif sort_by == "price_desc":
@@ -109,13 +103,11 @@ radius_filter = text(f"""
     return ListingList(items=items, total=total, page=page, page_size=page_size)
 
 
-# ─── Feed using logged-in user's saved location ───────────────────────────────
-
 @router.get("/my", response_model=ListingList)
 async def get_my_feed(
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
-    radius_override: Optional[float] = Query(None, ge=0.5, le=50.0),
+    radius_override: Optional[float] = Query(None, ge=0.5, le=500.0),
     category_id: Optional[UUID] = None,
     condition: Optional[str] = None,
     min_price: Optional[float] = None,
@@ -134,7 +126,6 @@ async def get_my_feed(
     lon = current_user.longitude
     radius_km = radius_override or current_user.availability_radius_km
 
-    # Delegate to the main feed endpoint logic
     filters = [Listing.status == ListingStatus.active]
 
     if category_id:
@@ -156,19 +147,19 @@ async def get_my_feed(
         ))
     """)
 
-radius_filter = text(f"""
-    (
-        pickup_latitude IS NULL
-        OR pickup_longitude IS NULL
-        OR (6371.0 * acos(
-            LEAST(1.0,
-                cos(radians({lat})) * cos(radians(pickup_latitude))
-                * cos(radians(pickup_longitude) - radians({lon}))
-                + sin(radians({lat})) * sin(radians(pickup_latitude))
-            )
-        )) <= ({radius_km} + pickup_radius_km)
-    )
-""")
+    radius_filter = text(f"""
+        (
+            pickup_latitude IS NULL
+            OR pickup_longitude IS NULL
+            OR (6371.0 * acos(
+                LEAST(1.0,
+                    cos(radians({lat})) * cos(radians(pickup_latitude))
+                    * cos(radians(pickup_longitude) - radians({lon}))
+                    + sin(radians({lat})) * sin(radians(pickup_latitude))
+                )
+            )) <= ({radius_km} + pickup_radius_km)
+        )
+    """)
 
     filters.append(radius_filter)
 
@@ -195,8 +186,6 @@ radius_filter = text(f"""
 
     return ListingList(items=items, total=total, page=page, page_size=page_size)
 
-
-# ─── Distance between buyer and a listing ────────────────────────────────────
 
 @router.get("/distance/{listing_id}")
 async def get_distance(
