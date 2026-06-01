@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import { useAuthStore } from "./store/authStore";
+import BottomNav from "./components/BottomNav";
 
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
@@ -32,7 +33,12 @@ export default function App() {
 
   return (
     <BrowserRouter>
-      <Toaster position="top-right" />
+      <Toaster
+        position="top-center"
+        toastOptions={{
+          style: { fontSize: "14px", borderRadius: "12px", fontFamily: "Inter, sans-serif" },
+        }}
+      />
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
@@ -47,6 +53,7 @@ export default function App() {
         <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
         <Route path="/listing/:id/edit" element={<PrivateRoute><EditListingPage /></PrivateRoute>} />
       </Routes>
+      <BottomNav />
     </BrowserRouter>
   );
 }

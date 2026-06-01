@@ -34,8 +34,8 @@ export default function ChatListPage() {
   return (
     <div className="min-h-screen bg-slate-50">
       <Navbar />
-      <div className="max-w-lg mx-auto px-4 py-6">
-        <h1 className="text-lg font-bold mb-5">Messages</h1>
+      <div className="max-w-2xl mx-auto px-4 py-6 pb-24 lg:pb-8">
+        <h1 className="text-lg font-bold text-zinc-900 mb-5">Messages</h1>
 
         {loading ? (
           <div className="space-y-3">
@@ -65,7 +65,7 @@ export default function ChatListPage() {
                 <Link
                   key={conv.id}
                   to={`/chat/${conv.id}`}
-                  className="flex items-center gap-3 bg-white rounded-2xl p-4 border border-gray-100 hover:border-gray-300 transition group"
+                  className="flex items-center gap-3 bg-white rounded-2xl p-4 border border-zinc-100 shadow-sm hover:border-zinc-300 hover:shadow-md transition-all group"
                 >
                   {/* Avatar */}
                   <div className="w-11 h-11 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0 text-sm font-semibold text-gray-500">

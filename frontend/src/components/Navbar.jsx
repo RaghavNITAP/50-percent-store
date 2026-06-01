@@ -9,7 +9,7 @@ export default function Navbar() {
   const isActive = (path) => pathname === path;
 
   const iconClass = (path) =>
-    `p-2 rounded-xl transition-all duration-150 flex flex-col items-center justify-center ${
+    `p-2 rounded-xl transition-all duration-150 ${
       isActive(path)
         ? "text-blue-600 bg-blue-50"
         : "text-zinc-400 hover:text-zinc-700 hover:bg-zinc-50"
@@ -17,42 +17,47 @@ export default function Navbar() {
 
   return (
     <nav className="sticky top-0 z-50 bg-white border-b border-zinc-100 shadow-sm">
-      <div className="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
+      <div className="max-w-6xl mx-auto px-4 lg:px-8 h-14 flex items-center justify-between">
 
         {/* Logo */}
-        <Link to="/" className="flex items-center">
-          <img
-            src="/logo.png"
-            alt="50% Store"
-            className="h-9 w-auto object-contain"
-          />
+        <Link to="/" className="flex-shrink-0">
+          <img src="/logo.png" alt="50% Store" className="h-9 w-auto object-contain" />
         </Link>
 
-        {/* Nav actions */}
-        <div className="flex items-center gap-0.5">
-
+        {/* Desktop nav links */}
+        <div className="hidden lg:flex items-center gap-1">
           <Link to="/" className={iconClass("/")}>
             <Home size={20} />
           </Link>
-
           <Link to="/chat" className={iconClass("/chat")}>
             <MessageCircle size={20} />
           </Link>
-
           <Link to="/profile" className={iconClass("/profile")}>
             <User size={20} />
           </Link>
-
           {user?.role !== "buyer" && (
             <Link
               to="/sell"
-              className="ml-2 flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white px-3.5 py-2 rounded-xl text-sm font-semibold transition-colors duration-150"
+              className="ml-2 flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white px-3.5 py-2 rounded-xl text-sm font-semibold transition-colors"
             >
               <Plus size={15} strokeWidth={2.5} />
               Sell
             </Link>
           )}
         </div>
+
+        {/* Mobile: Sell button only (bottom nav handles navigation) */}
+        {user?.role !== "buyer" && (
+          <div className="lg:hidden">
+            <Link
+              to="/sell"
+              className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-xl text-sm font-semibold transition-colors"
+            >
+              <Plus size={14} strokeWidth={2.5} />
+              Sell
+            </Link>
+          </div>
+        )}
       </div>
     </nav>
   );
