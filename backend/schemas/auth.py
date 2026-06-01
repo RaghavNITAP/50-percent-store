@@ -21,7 +21,10 @@ class UserRegister(BaseModel):
     role: UserRole = UserRole.buyer
     city: Optional[str] = None
     locality: Optional[str] = None
-
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    availability_radius_km: Optional[float] = 5.0
+    
     @field_validator("password")
     @classmethod
     def password_strength(cls, v):
