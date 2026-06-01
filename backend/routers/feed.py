@@ -68,14 +68,17 @@ async def get_feed(
     """)
 
 radius_filter = text(f"""
-    (pickup_latitude IS NULL OR pickup_longitude IS NULL OR
-    (6371.0 * acos(
-        LEAST(1.0,
-            cos(radians({lat})) * cos(radians(pickup_latitude))
-            * cos(radians(pickup_longitude) - radians({lon}))
-            + sin(radians({lat})) * sin(radians(pickup_latitude))
-        )
-    )) <= ({radius_km} + pickup_radius_km))
+    (
+        pickup_latitude IS NULL
+        OR pickup_longitude IS NULL
+        OR (6371.0 * acos(
+            LEAST(1.0,
+                cos(radians({lat})) * cos(radians(pickup_latitude))
+                * cos(radians(pickup_longitude) - radians({lon}))
+                + sin(radians({lat})) * sin(radians(pickup_latitude))
+            )
+        )) <= ({radius_km} + pickup_radius_km)
+    )
 """)
 
     filters.append(radius_filter)
@@ -154,14 +157,17 @@ async def get_my_feed(
     """)
 
 radius_filter = text(f"""
-    (pickup_latitude IS NULL OR pickup_longitude IS NULL OR
-    (6371.0 * acos(
-        LEAST(1.0,
-            cos(radians({lat})) * cos(radians(pickup_latitude))
-            * cos(radians(pickup_longitude) - radians({lon}))
-            + sin(radians({lat})) * sin(radians(pickup_latitude))
-        )
-    )) <= ({radius_km} + pickup_radius_km))
+    (
+        pickup_latitude IS NULL
+        OR pickup_longitude IS NULL
+        OR (6371.0 * acos(
+            LEAST(1.0,
+                cos(radians({lat})) * cos(radians(pickup_latitude))
+                * cos(radians(pickup_longitude) - radians({lon}))
+                + sin(radians({lat})) * sin(radians(pickup_latitude))
+            )
+        )) <= ({radius_km} + pickup_radius_km)
+    )
 """)
 
     filters.append(radius_filter)
