@@ -97,7 +97,7 @@ export default function ProfilePage() {
         setLocating(false);
         toast.success("Location updated");
       },
-      () => { setLocating(false); toast.error("Could not detect location"); }
+      (err) => { setLocating(false); toast.error("Could not detect location: " + err.message); }
     );
   };
 

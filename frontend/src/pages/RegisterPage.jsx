@@ -25,7 +25,7 @@ export default function RegisterPage() {
         setLocating(false);
         toast.success("Location detected");
       },
-      () => { setLocating(false); toast.error("Could not detect location"); }
+      (err) => { setLocating(false); toast.error("Could not detect location: " + err.message); }
     );
   };
 

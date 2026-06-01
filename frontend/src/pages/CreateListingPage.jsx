@@ -116,9 +116,9 @@ export default function CreateListingPage() {
         setLocating(false);
         toast.success("Location detected");
       },
-      () => { 
+      (err) => { 
         setLocating(false); 
-        toast.error("Could not detect location. Using fallback location."); 
+        toast.error("Could not detect location: " + err.message + ". Using fallback location."); 
         // Fallback coordinates so user is not blocked
         setForm((f) => ({
           ...f,
