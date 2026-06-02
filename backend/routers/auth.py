@@ -181,19 +181,17 @@ GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "")
 
 @router.post("/google", response_model=TokenResponse)
 async def google_login(payload: GoogleAuthPayload, db: AsyncSession = Depends(get_db)):
-    # Verify token with Google
+    # Verify access token and get user info from Google
     async with httpx.AsyncClient() as client:
         resp = await client.get(
-            f"https://oauth2.googleapis.com/tokeninfo?id_token={payload.token}"
+            "https://www.googleapis.com/oauth2/v2/userinfo",
+            headers={"Authorization": f"Bearer {payload.token}"},
         )
 
     if resp.status_code != 200:
         raise HTTPException(status_code=401, detail="Invalid Google token")
 
     info = resp.json()
-
-    if GOOGLE_CLIENT_ID and info.get("aud") != GOOGLE_CLIENT_ID:
-        raise HTTPException(status_code=401, detail="Token audience mismatch")
 
     email = info.get("email")
     if not email:
