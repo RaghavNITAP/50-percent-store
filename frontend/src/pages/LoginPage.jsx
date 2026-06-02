@@ -81,7 +81,8 @@ export default function LoginPage() {
 
           <div className="flex justify-center">
             <GoogleLogin
-              onSuccess={handleGoogleSuccess}
+              ux_mode="redirect"
+              login_uri={`${import.meta.env.VITE_API_URL || "https://50-percent-store-production.up.railway.app"}/auth/google/callback`}
               onError={() => toast.error("Google login failed")}
               width="340"
               theme="outline"

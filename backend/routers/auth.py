@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status, Form
+from fastapi.responses import RedirectResponse
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 
@@ -233,6 +234,70 @@ async def google_login(payload: GoogleAuthPayload, db: AsyncSession = Depends(ge
     ))
     await db.commit()
     return TokenResponse(access_token=access_token, refresh_token=raw_refresh)
+
+
+# ─── Google OAuth — redirect mode (popup-blocker proof) ──────────────────────
+
+@router.post("/google/callback")
+async def google_callback(
+    credential: str = Form(...),
+    db: AsyncSession = Depends(get_db),
+):
+    FRONTEND_URL = os.getenv("FRONTEND_URL", "https://50-percent-store.vercel.app")
+
+    async with httpx.AsyncClient() as client:
+        resp = await client.get(
+            f"https://oauth2.googleapis.com/tokeninfo?id_token={credential}"
+        )
+
+    if resp.status_code != 200:
+        return RedirectResponse(url=f"{FRONTEND_URL}/login?error=invalid_google_token", status_code=302)
+
+    info = resp.json()
+    email = info.get("email")
+    if not email:
+        return RedirectResponse(url=f"{FRONTEND_URL}/login?error=no_email", status_code=302)
+
+    full_name = info.get("name") or email.split("@")[0]
+    avatar_url = info.get("picture")
+
+    result = await db.execute(select(User).where(User.email == email))
+    user = result.scalar_one_or_none()
+
+    if not user:
+        user = User(
+            id=uuid.uuid4(),
+            email=email,
+            hashed_password=hash_password(secrets.token_urlsafe(32)),
+            full_name=full_name,
+            avatar_url=avatar_url,
+            role=UserRole.buyer,
+        )
+        db.add(user)
+        await db.flush()
+        if avatar_url:
+            await apply_one_time_bonus(user, "avatar", +3, db)
+    else:
+        if avatar_url and not user.avatar_url:
+            user.avatar_url = avatar_url
+
+    if not user.is_active:
+        return RedirectResponse(url=f"{FRONTEND_URL}/login?error=account_deactivated", status_code=302)
+
+    access_token = create_access_token(str(user.id), user.role)
+    raw_refresh, hashed_refresh, expires_at = create_refresh_token()
+    db.add(RefreshToken(
+        id=uuid.uuid4(),
+        user_id=user.id,
+        token_hash=hashed_refresh,
+        expires_at=expires_at,
+    ))
+    await db.commit()
+
+    return RedirectResponse(
+        url=f"{FRONTEND_URL}/google-callback?at={access_token}&rt={raw_refresh}",
+        status_code=302,
+    )
 
 @router.post("/become-seller", response_model=UserOut)
 async def become_seller(
