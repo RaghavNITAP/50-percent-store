@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
-import { useGoogleLogin } from "@react-oauth/google";
+import { GoogleLogin } from "@react-oauth/google";
 import { MapPin, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -16,17 +16,14 @@ export default function RegisterPage() {
   const loading = useAuthStore((s) => s.loading);
   const navigate = useNavigate();
 
-  const handleGoogleLogin = useGoogleLogin({
-    onSuccess: async (tokenResponse) => {
-      try {
-        await loginWithGoogle(tokenResponse.access_token);
-        navigate("/");
-      } catch {
-        toast.error("Google login failed");
-      }
-    },
-    onError: () => toast.error("Google login cancelled"),
-  });
+  const handleGoogleSuccess = async (credentialResponse) => {
+    try {
+      await loginWithGoogle(credentialResponse.credential);
+      navigate("/");
+    } catch {
+      toast.error("Google login failed");
+    }
+  };
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
@@ -156,20 +153,17 @@ export default function RegisterPage() {
             <div className="flex-1 h-px bg-zinc-100" />
           </div>
 
-          <button
-            type="button"
-            onClick={() => handleGoogleLogin()}
-            disabled={loading}
-            className="w-full flex items-center justify-center gap-3 border border-zinc-200 bg-white text-zinc-700 py-3 rounded-xl text-sm font-medium hover:border-zinc-400 hover:bg-zinc-50 transition disabled:opacity-50"
-          >
-            <svg width="18" height="18" viewBox="0 0 48 48">
-              <path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.2l6.7-6.7C35.8 2.5 30.2 0 24 0 14.7 0 6.8 5.5 2.9 13.6l7.8 6C12.5 13.1 17.8 9.5 24 9.5z"/>
-              <path fill="#4285F4" d="M46.1 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.4c-.5 2.8-2.1 5.2-4.5 6.8l7 5.4C43.1 37 46.1 31.2 46.1 24.5z"/>
-              <path fill="#FBBC05" d="M10.7 28.6A14.8 14.8 0 0 1 9.5 24c0-1.6.3-3.2.8-4.6l-7.8-6A23.9 23.9 0 0 0 0 24c0 3.9.9 7.5 2.6 10.7l8.1-6.1z"/>
-              <path fill="#34A853" d="M24 48c6.2 0 11.4-2 15.2-5.5l-7-5.4c-2 1.4-4.6 2.2-8.2 2.2-6.2 0-11.5-4.2-13.4-9.8l-8.1 6.1C6.7 42.4 14.7 48 24 48z"/>
-            </svg>
-            Continue with Google
-          </button>
+          <div className="flex justify-center">
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={() => toast.error("Google login failed")}
+              width="340"
+              theme="outline"
+              size="large"
+              text="continue_with"
+              shape="rectangular"
+            />
+          </div>
         </form>
 
         <p className="text-center text-sm text-zinc-400 mt-6">

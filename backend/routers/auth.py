@@ -184,8 +184,7 @@ async def google_login(payload: GoogleAuthPayload, db: AsyncSession = Depends(ge
     # Verify access token and get user info from Google
     async with httpx.AsyncClient() as client:
         resp = await client.get(
-            "https://www.googleapis.com/oauth2/v2/userinfo",
-            headers={"Authorization": f"Bearer {payload.token}"},
+            f"https://oauth2.googleapis.com/tokeninfo?id_token={payload.token}",
         )
 
     if resp.status_code != 200:
