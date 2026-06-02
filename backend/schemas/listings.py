@@ -86,6 +86,7 @@ class SellerBrief(BaseModel):
     avatar_url: Optional[str]
     city: Optional[str]
     locality: Optional[str]
+    trust_score: int = 70
     model_config = {"from_attributes": True}
 
 
