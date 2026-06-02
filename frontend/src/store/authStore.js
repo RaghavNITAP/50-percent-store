@@ -7,23 +7,31 @@ export const useAuthStore = create((set) => ({
 
   login: async (email, password) => {
     set({ loading: true });
-    const res = await authApi.login({ email, password });
-    localStorage.setItem("access_token", res.data.access_token);
-    localStorage.setItem("refresh_token", res.data.refresh_token);
-    const me = await authApi.me();
-    set({ user: me.data, loading: false });
-    return me.data;
+    try {
+      const res = await authApi.login({ email, password });
+      localStorage.setItem("access_token", res.data.access_token);
+      localStorage.setItem("refresh_token", res.data.refresh_token);
+      const me = await authApi.me();
+      set({ user: me.data, loading: false });
+      return me.data;
+    } finally {
+      set((s) => s.loading ? { loading: false } : {});
+    }
   },
 
   register: async (data) => {
     set({ loading: true });
-    await authApi.register(data);
-    const res = await authApi.login({ email: data.email, password: data.password });
-    localStorage.setItem("access_token", res.data.access_token);
-    localStorage.setItem("refresh_token", res.data.refresh_token);
-    const me = await authApi.me();
-    set({ user: me.data, loading: false });
-    return me.data;
+    try {
+      await authApi.register(data);
+      const res = await authApi.login({ email: data.email, password: data.password });
+      localStorage.setItem("access_token", res.data.access_token);
+      localStorage.setItem("refresh_token", res.data.refresh_token);
+      const me = await authApi.me();
+      set({ user: me.data, loading: false });
+      return me.data;
+    } finally {
+      set((s) => s.loading ? { loading: false } : {});
+    }
   },
 
   fetchMe: async () => {
