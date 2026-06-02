@@ -59,6 +59,10 @@ class RefreshRequest(BaseModel):
     refresh_token: str
 
 
+class GoogleAuthPayload(BaseModel):
+    token: str  # Google ID token from frontend
+
+
 # ─── User responses ───────────────────────────────────────────────────────────
 
 class UserOut(BaseModel):

@@ -6,10 +6,13 @@ limiter = Limiter(key_func=get_remote_address)
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from datetime import datetime, timezone
+import httpx
+import secrets
+import os
 
 from database import get_db
-from models import User, RefreshToken, SellerProfile
-from schemas.auth import UserRegister, UserLogin, TokenResponse, RefreshRequest, UserOut, UserUpdate
+from models import User, RefreshToken, SellerProfile, UserRole
+from schemas.auth import UserRegister, UserLogin, TokenResponse, RefreshRequest, UserOut, UserUpdate, GoogleAuthPayload
 from core.security import (
     hash_password, verify_password,
     create_access_token, create_refresh_token, hash_refresh_token
@@ -172,7 +175,67 @@ async def update_me(
     return current_user
 
 
-# ─── Upgrade to seller ────────────────────────────────────────────────────────
+# ─── Google OAuth ────────────────────────────────────────────────────────────
+
+GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "")
+
+@router.post("/google", response_model=TokenResponse)
+async def google_login(payload: GoogleAuthPayload, db: AsyncSession = Depends(get_db)):
+    # Verify token with Google
+    async with httpx.AsyncClient() as client:
+        resp = await client.get(
+            f"https://oauth2.googleapis.com/tokeninfo?id_token={payload.token}"
+        )
+
+    if resp.status_code != 200:
+        raise HTTPException(status_code=401, detail="Invalid Google token")
+
+    info = resp.json()
+
+    if GOOGLE_CLIENT_ID and info.get("aud") != GOOGLE_CLIENT_ID:
+        raise HTTPException(status_code=401, detail="Token audience mismatch")
+
+    email = info.get("email")
+    if not email:
+        raise HTTPException(status_code=401, detail="No email in Google token")
+
+    full_name = info.get("name") or email.split("@")[0]
+    avatar_url = info.get("picture")
+
+    # Find or create user
+    result = await db.execute(select(User).where(User.email == email))
+    user = result.scalar_one_or_none()
+
+    if not user:
+        user = User(
+            id=uuid.uuid4(),
+            email=email,
+            hashed_password=hash_password(secrets.token_urlsafe(32)),
+            full_name=full_name,
+            avatar_url=avatar_url,
+            role=UserRole.buyer,
+        )
+        db.add(user)
+        await db.flush()
+        if avatar_url:
+            await apply_one_time_bonus(user, "avatar", +3, db)
+    else:
+        if avatar_url and not user.avatar_url:
+            user.avatar_url = avatar_url
+
+    if not user.is_active:
+        raise HTTPException(status_code=403, detail="Account deactivated")
+
+    access_token = create_access_token(str(user.id), user.role)
+    raw_refresh, hashed_refresh, expires_at = create_refresh_token()
+    db.add(RefreshToken(
+        id=uuid.uuid4(),
+        user_id=user.id,
+        token_hash=hashed_refresh,
+        expires_at=expires_at,
+    ))
+    await db.commit()
+    return TokenResponse(access_token=access_token, refresh_token=raw_refresh)
 
 @router.post("/become-seller", response_model=UserOut)
 async def become_seller(
