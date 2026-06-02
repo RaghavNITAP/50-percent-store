@@ -1,4 +1,8 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+
+limiter = Limiter(key_func=get_remote_address)
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from datetime import datetime, timezone
@@ -19,7 +23,8 @@ router = APIRouter(prefix="/auth", tags=["Auth"])
 # ─── Register ─────────────────────────────────────────────────────────────────
 
 @router.post("/register", response_model=UserOut, status_code=201)
-async def register(payload: UserRegister, db: AsyncSession = Depends(get_db)):
+@limiter.limit("3/minute")
+async def register(request: Request, payload: UserRegister, db: AsyncSession = Depends(get_db)):
     # Check duplicate email
     result = await db.execute(select(User).where(User.email == payload.email))
     if result.scalar_one_or_none():
@@ -59,7 +64,8 @@ async def register(payload: UserRegister, db: AsyncSession = Depends(get_db)):
 # ─── Login ────────────────────────────────────────────────────────────────────
 
 @router.post("/login", response_model=TokenResponse)
-async def login(payload: UserLogin, db: AsyncSession = Depends(get_db)):
+@limiter.limit("5/minute")
+async def login(request: Request, payload: UserLogin, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(User).where(User.email == payload.email))
     user = result.scalar_one_or_none()
 
@@ -86,7 +92,8 @@ async def login(payload: UserLogin, db: AsyncSession = Depends(get_db)):
 # ─── Refresh ──────────────────────────────────────────────────────────────────
 
 @router.post("/refresh", response_model=TokenResponse)
-async def refresh(payload: RefreshRequest, db: AsyncSession = Depends(get_db)):
+@limiter.limit("10/minute")
+async def refresh(request: Request, payload: RefreshRequest, db: AsyncSession = Depends(get_db)):
     token_hash = hash_refresh_token(payload.refresh_token)
 
     result = await db.execute(
