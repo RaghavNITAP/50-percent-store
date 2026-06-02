@@ -72,6 +72,8 @@ class User(Base):
     # Meta
     is_active = Column(Boolean, default=True)
     is_verified = Column(Boolean, default=False)
+    trust_score = Column(Integer, default=70)
+    trust_score_bonuses = Column(JSONB, default={})
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 

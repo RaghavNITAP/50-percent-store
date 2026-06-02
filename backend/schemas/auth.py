@@ -74,6 +74,7 @@ class UserOut(BaseModel):
     availability_radius_km: float
     is_verified: bool
     avatar_url: Optional[str]
+    trust_score: int = 70
 
     model_config = {"from_attributes": True}
 

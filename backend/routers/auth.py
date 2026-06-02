@@ -15,6 +15,7 @@ from core.security import (
     create_access_token, create_refresh_token, hash_refresh_token
 )
 from core.dependencies import get_current_user
+from core.trust import apply_one_time_bonus
 import uuid
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
@@ -154,8 +155,18 @@ async def update_me(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    for field, value in payload.model_dump(exclude_none=True).items():
+    update_data = payload.model_dump(exclude_none=True)
+    for field, value in update_data.items():
         setattr(current_user, field, value)
+
+    # One-time trust bonuses for completing profile
+    if "phone" in update_data:
+        await apply_one_time_bonus(current_user, "phone", +5, db)
+    if "latitude" in update_data or "longitude" in update_data:
+        await apply_one_time_bonus(current_user, "gps", +2, db)
+    if "avatar_url" in update_data:
+        await apply_one_time_bonus(current_user, "avatar", +3, db)
+
     await db.commit()
     await db.refresh(current_user)
     return current_user

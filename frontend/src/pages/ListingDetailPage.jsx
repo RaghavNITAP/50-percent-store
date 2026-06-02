@@ -272,6 +272,24 @@ export default function ListingDetailPage() {
                     {listing.seller.locality}{listing.seller.city && `, ${listing.seller.city}`}
                   </p>
                 </div>
+                {listing.seller.trust_score != null && (
+                  <div className="flex-shrink-0 text-right">
+                    <div className={`text-sm font-bold ${
+                      listing.seller.trust_score >= 85 ? "text-emerald-600" :
+                      listing.seller.trust_score >= 70 ? "text-blue-600" :
+                      listing.seller.trust_score >= 50 ? "text-amber-600" :
+                      "text-red-500"
+                    }`}>
+                      ★ {listing.seller.trust_score}
+                    </div>
+                    <div className="text-[10px] text-zinc-400 mt-0.5">
+                      {listing.seller.trust_score >= 85 ? "Highly Trusted" :
+                       listing.seller.trust_score >= 70 ? "Trusted" :
+                       listing.seller.trust_score >= 50 ? "Building Trust" :
+                       "Low Trust"}
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Pickup */}

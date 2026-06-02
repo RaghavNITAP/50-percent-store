@@ -9,6 +9,7 @@ from database import get_db
 from models import Review, Order, OrderStatus, SellerProfile, User
 from schemas.reviews import ReviewCreate, ReviewOut, SellerRatingSummary
 from core.dependencies import get_current_user
+from core.trust import apply_trust_delta
 
 router = APIRouter(prefix="/reviews", tags=["Reviews"])
 
@@ -69,6 +70,22 @@ async def submit_review(
         profile.avg_rating = round(float(row.avg or 0), 2)
         profile.total_ratings = row.count
         profile.total_sales = profile.total_sales + 1
+
+    # ── Trust score delta based on rating ────────────────────────────────────
+    reviewed_user_result = await db.execute(
+        select(User).where(User.id == order.seller_id)
+    )
+    reviewed_user = reviewed_user_result.scalar_one_or_none()
+    if reviewed_user:
+        if payload.rating == 5:
+            delta = +3
+        elif payload.rating == 4:
+            delta = +1
+        elif payload.rating == 3:
+            delta = -1
+        else:  # 1 or 2
+            delta = -5
+        await apply_trust_delta(reviewed_user, delta, db)
 
     await db.commit()
 

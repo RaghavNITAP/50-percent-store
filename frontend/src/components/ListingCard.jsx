@@ -75,14 +75,26 @@ export default function ListingCard({ listing }) {
             <span className={`text-[10px] px-1.5 py-0.5 rounded-md font-semibold ${condition.cls}`}>
               {condition.label}
             </span>
-            {(listing.seller?.locality || listing.seller?.city) && (
-              <div className="flex items-center gap-0.5 text-zinc-400 min-w-0">
-                <MapPin size={10} className="flex-shrink-0" />
-                <span className="text-[10px] truncate max-w-[72px]">
-                  {listing.seller.locality || listing.seller.city}
+            <div className="flex items-center gap-1.5 min-w-0">
+              {listing.seller?.trust_score != null && (
+                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${
+                  listing.seller.trust_score >= 85 ? "bg-emerald-50 text-emerald-700" :
+                  listing.seller.trust_score >= 70 ? "bg-blue-50 text-blue-600" :
+                  listing.seller.trust_score >= 50 ? "bg-amber-50 text-amber-700" :
+                  "bg-red-50 text-red-600"
+                }`}>
+                  ★ {listing.seller.trust_score}
                 </span>
-              </div>
-            )}
+              )}
+              {(listing.seller?.locality || listing.seller?.city) && (
+                <div className="flex items-center gap-0.5 text-zinc-400 min-w-0">
+                  <MapPin size={10} className="flex-shrink-0" />
+                  <span className="text-[10px] truncate max-w-[60px]">
+                    {listing.seller.locality || listing.seller.city}
+                  </span>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>

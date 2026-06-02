@@ -133,8 +133,26 @@ async def natural_language_search(
             )) <= ({radius_km} + pickup_radius_km)
         """))
 
-    sort_by = parsed.get("sort_by", "recent")
-    if sort_by == "price_asc":
+    # ── Ranking: keyword match 80% + trust 20% ───────────────────────────────
+    # Build a keyword match score: title match = 10pts/word, desc = 3pts/word
+    keywords = parsed.get("keywords", "").split() if parsed.get("keywords") else []
+
+    if keywords and (sort_by == "recent" or not sort_by):
+        # Build SQL CASE expressions for each keyword
+        title_cases = " + ".join(
+            [f"CASE WHEN LOWER(listings.title) LIKE '%{w.lower()}%' THEN 10 ELSE 0 END" for w in keywords]
+        ) if keywords else "0"
+        desc_cases = " + ".join(
+            [f"CASE WHEN LOWER(listings.description) LIKE '%{w.lower()}%' THEN 3 ELSE 0 END" for w in keywords]
+        ) if keywords else "0"
+
+        order = text(f"""
+            (
+                ({title_cases} + {desc_cases}) * 0.8
+                + COALESCE((SELECT trust_score FROM users WHERE users.id = listings.seller_id), 70) * 0.2
+            ) DESC
+        """)
+    elif sort_by == "price_asc":
         order = Listing.reselling_price.asc()
     elif sort_by == "price_desc":
         order = Listing.reselling_price.desc()

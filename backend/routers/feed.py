@@ -82,6 +82,7 @@ async def get_feed(
     count_q = select(func.count()).select_from(Listing).where(and_(*filters))
     total = (await db.execute(count_q)).scalar()
 
+    # ── Ranking: recency 80% + trust 20% (distance is binary gate, not gradient) ──
     if sort_by == "price_asc":
         order = Listing.reselling_price.asc()
     elif sort_by == "price_desc":
@@ -89,7 +90,13 @@ async def get_feed(
     elif sort_by == "nearest":
         order = distance_expr.asc()
     else:
-        order = Listing.created_at.desc()
+        # Default: blend recency (80%) + seller trust score (20%)
+        order = text(f"""
+            (
+                GREATEST(0.0, 100.0 - EXTRACT(EPOCH FROM (NOW() - listings.created_at)) / 86400.0 * 3.33) * 0.8
+                + COALESCE((SELECT trust_score FROM users WHERE users.id = listings.seller_id), 70) * 0.2
+            ) DESC
+        """)
 
     result = await db.execute(
         listing_query()
@@ -166,6 +173,7 @@ async def get_my_feed(
     count_q = select(func.count()).select_from(Listing).where(and_(*filters))
     total = (await db.execute(count_q)).scalar()
 
+    # ── Ranking: recency 80% + trust 20% (distance is binary gate, not gradient) ──
     if sort_by == "price_asc":
         order = Listing.reselling_price.asc()
     elif sort_by == "price_desc":
@@ -173,7 +181,13 @@ async def get_my_feed(
     elif sort_by == "nearest":
         order = distance_expr.asc()
     else:
-        order = Listing.created_at.desc()
+        # Default: blend recency (80%) + seller trust score (20%)
+        order = text(f"""
+            (
+                GREATEST(0.0, 100.0 - EXTRACT(EPOCH FROM (NOW() - listings.created_at)) / 86400.0 * 3.33) * 0.8
+                + COALESCE((SELECT trust_score FROM users WHERE users.id = listings.seller_id), 70) * 0.2
+            ) DESC
+        """)
 
     result = await db.execute(
         listing_query()

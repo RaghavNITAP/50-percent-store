@@ -13,6 +13,7 @@ from database import get_db
 from models import Order, OrderStatus, Listing, ListingStatus, User
 from schemas.payments import OrderCreate, OrderOut, PaymentIntentOut, RefundRequest
 from core.dependencies import get_current_user, get_current_buyer
+from core.trust import apply_trust_delta
 
 router = APIRouter(prefix="/payments", tags=["Payments"])
 
@@ -148,6 +149,11 @@ async def _handle_payment_failed(payment_intent_id: str, db: AsyncSession):
     order = result.scalar_one_or_none()
     if order:
         order.status = OrderStatus.cancelled
+        # Trust: seller -3 for failed/cancelled payment (seller-side issue)
+        seller_result = await db.execute(select(User).where(User.id == order.seller_id))
+        seller = seller_result.scalar_one_or_none()
+        if seller:
+            await apply_trust_delta(seller, -3, db)
         await db.commit()
 
 
@@ -181,6 +187,13 @@ async def complete_order(
 
     order.status = OrderStatus.completed
     order.completed_at = datetime.now(timezone.utc)
+
+    # Trust: seller +5 for completing a sale
+    seller_result = await db.execute(select(User).where(User.id == order.seller_id))
+    seller = seller_result.scalar_one_or_none()
+    if seller:
+        await apply_trust_delta(seller, +5, db)
+
     await db.commit()
     await db.refresh(order)
     return order
