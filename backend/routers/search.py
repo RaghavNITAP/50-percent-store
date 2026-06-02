@@ -135,6 +135,7 @@ async def natural_language_search(
 
     # ── Ranking: keyword match 80% + trust 20% ───────────────────────────────
     # Build a keyword match score: title match = 10pts/word, desc = 3pts/word
+    sort_by = parsed.get("sort_by", "recent")
     keywords = parsed.get("keywords", "").split() if parsed.get("keywords") else []
 
     if keywords and (sort_by == "recent" or not sort_by):
