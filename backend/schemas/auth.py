@@ -21,6 +21,7 @@ class UserRegister(BaseModel):
     role: UserRole = UserRole.both
     city: Optional[str] = None
     locality: Optional[str] = None
+    pincode: Optional[str] = None
     latitude: Optional[float] = None
     longitude: Optional[float] = None
     availability_radius_km: Optional[float] = None

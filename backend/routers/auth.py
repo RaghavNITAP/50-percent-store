@@ -50,6 +50,7 @@ async def register(request: Request, payload: UserRegister, db: AsyncSession = D
         role=payload.role,
         city=payload.city,
         locality=payload.locality,
+        pincode=payload.pincode,
         latitude=payload.latitude,
         longitude=payload.longitude,
         availability_radius_km=payload.availability_radius_km,
