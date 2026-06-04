@@ -35,7 +35,7 @@ export default function EditListingPage() {
     category_id: "",
     original_price: "",
     reselling_price: "",
-    age_years: "",
+    age_months: "",
     defects: "",
     is_negotiable: false,
     pickup_address: "",
@@ -59,7 +59,7 @@ export default function EditListingPage() {
           category_id: l.category_id || "",
           original_price: l.original_price ?? "",
           reselling_price: l.reselling_price ?? "",
-          age_years: l.age_years ?? "",
+          age_months: l.age_years != null ? Math.round(l.age_years * 12) : "",
           defects: l.defects || "",
           is_negotiable: l.is_negotiable || false,
           pickup_address: l.pickup_address || "",
@@ -85,7 +85,7 @@ export default function EditListingPage() {
         category_id: form.category_id || null,
         original_price: form.original_price ? Number(form.original_price) : null,
         reselling_price: Number(form.reselling_price),
-        age_years: form.age_years ? Number(form.age_years) : null,
+        age_years: form.age_months ? Number(form.age_months) / 12 : null,
         defects: form.defects || null,
         is_negotiable: form.is_negotiable,
         pickup_address: form.pickup_address || null,
@@ -211,8 +211,8 @@ export default function EditListingPage() {
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-medium text-gray-500 mb-1.5">Age (years)</label>
-                <input type="number" value={form.age_years} onChange={(e) => set("age_years", e.target.value)} placeholder="e.g. 1.5" min="0" step="0.5"
+                <label className="block text-xs font-medium text-gray-500 mb-1.5">Age (months)</label>
+                <input type="number" value={form.age_months} onChange={(e) => set("age_months", e.target.value)} placeholder="e.g. 6" min="0" step="1"
                   className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
               </div>
               <div className="flex flex-col justify-end">

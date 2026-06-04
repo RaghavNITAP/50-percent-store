@@ -18,7 +18,7 @@ class UserRegister(BaseModel):
     password: str
     full_name: str
     phone: Optional[str] = None
-    role: UserRole = UserRole.buyer
+    role: UserRole = UserRole.both
     city: Optional[str] = None
     locality: Optional[str] = None
     latitude: Optional[float] = None

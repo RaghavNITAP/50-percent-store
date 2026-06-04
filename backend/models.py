@@ -60,7 +60,7 @@ class User(Base):
     hashed_password = Column(String(255), nullable=False)
     full_name = Column(String(100), nullable=False)
     avatar_url = Column(Text, nullable=True)
-    role = Column(Enum(UserRole), default=UserRole.buyer, nullable=False)
+    role = Column(Enum(UserRole), default=UserRole.both, nullable=False)
 
     # Location
     city = Column(String(100), nullable=True)

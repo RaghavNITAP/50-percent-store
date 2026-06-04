@@ -43,7 +43,7 @@ export default function CreateListingPage() {
     category_id: "",
     original_price: "",
     reselling_price: "",
-    age_years: "",
+    age_months: "",
     defects: "",
     is_negotiable: false,
     pickup_address: "",
@@ -145,7 +145,7 @@ export default function CreateListingPage() {
         category_id: form.category_id || null,
         original_price: form.original_price ? Number(form.original_price) : null,
         reselling_price: Number(form.reselling_price),
-        age_years: form.age_years ? Number(form.age_years) : null,
+        age_years: form.age_months ? Number(form.age_months) / 12 : null,
         defects: form.defects || null,
         is_negotiable: form.is_negotiable,
         pickup_address: form.pickup_address || null,
@@ -167,19 +167,6 @@ export default function CreateListingPage() {
       setSubmitting(false);
     }
   };
-
-  if (user && user.role === "buyer") {
-    return (
-      <div className="min-h-screen bg-slate-50">
-        <Navbar />
-        <div className="max-w-md mx-auto px-4 py-20 text-center">
-          <p className="text-4xl mb-4">🏪</p>
-          <h2 className="text-lg font-bold text-gray-900 mb-2">Become a Seller</h2>
-          <p className="text-sm text-gray-500">You need a seller account to post listings.</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -372,15 +359,15 @@ export default function CreateListingPage() {
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs font-medium text-gray-500 mb-1.5">
-                  Age <span className="text-gray-300">(years)</span>
+                  Age <span className="text-gray-300">(months)</span>
                 </label>
                 <input
                   type="number"
-                  value={form.age_years}
-                  onChange={(e) => set("age_years", e.target.value)}
-                  placeholder="e.g. 1.5"
+                  value={form.age_months}
+                  onChange={(e) => set("age_months", e.target.value)}
+                  placeholder="e.g. 6"
                   min="0"
-                  step="0.5"
+                  step="1"
                   className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>

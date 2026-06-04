@@ -248,7 +248,10 @@ export default function ListingDetailPage() {
                 {listing.age_years != null && (
                   <span className="flex items-center gap-1.5">
                     <Clock size={14} />
-                    {listing.age_years === 0 ? "< 1 year old" : `${listing.age_years} yr${listing.age_years !== 1 ? "s" : ""} old`}
+                  {(() => {
+                    const months = Math.round(listing.age_years * 12);
+                    return months <= 1 ? "< 1 month old" : `${months} month${months !== 1 ? "s" : ""} old`;
+                  })()}
                   </span>
                 )}
                 <span className="flex items-center gap-1.5">

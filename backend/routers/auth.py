@@ -57,9 +57,8 @@ async def register(request: Request, payload: UserRegister, db: AsyncSession = D
     db.add(user)
     await db.flush()  # get user.id before commit
 
-    # Auto-create seller profile if role is seller/both
-    if payload.role in ("seller", "both"):
-        db.add(SellerProfile(id=uuid.uuid4(), user_id=user.id))
+    # Auto-create seller profile for all users (everyone can sell)
+    db.add(SellerProfile(id=uuid.uuid4(), user_id=user.id))
 
     await db.commit()
     await db.refresh(user)
@@ -211,10 +210,11 @@ async def google_login(payload: GoogleAuthPayload, db: AsyncSession = Depends(ge
             hashed_password=hash_password(secrets.token_urlsafe(32)),
             full_name=full_name,
             avatar_url=avatar_url,
-            role=UserRole.buyer,
+            role=UserRole.both,
         )
         db.add(user)
         await db.flush()
+        db.add(SellerProfile(id=uuid.uuid4(), user_id=user.id))
         if avatar_url:
             await apply_one_time_bonus(user, "avatar", +3, db)
     else:
@@ -271,10 +271,11 @@ async def google_callback(
             hashed_password=hash_password(secrets.token_urlsafe(32)),
             full_name=full_name,
             avatar_url=avatar_url,
-            role=UserRole.buyer,
+            role=UserRole.both,
         )
         db.add(user)
         await db.flush()
+        db.add(SellerProfile(id=uuid.uuid4(), user_id=user.id))
         if avatar_url:
             await apply_one_time_bonus(user, "avatar", +3, db)
     else:
