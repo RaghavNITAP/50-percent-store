@@ -135,6 +135,20 @@ async def my_conversations(
     return out
 
 
+# ─── Total unread count ───────────────────────────────────────────────────────
+
+@router.get("/unread-count")
+async def get_unread_count(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    result = await db.execute(
+        select(func.coalesce(func.sum(ConversationParticipant.unread_count), 0))
+        .where(ConversationParticipant.user_id == current_user.id)
+    )
+    count = result.scalar() or 0
+    return {"unread_count": int(count)}
+
 # ─── Messages in a conversation ───────────────────────────────────────────────
 
 @router.get("/conversations/{conversation_id}/messages", response_model=MessageList)

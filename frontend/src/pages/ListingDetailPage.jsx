@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import {
   MapPin, Eye, Calendar, AlertCircle,
   ChevronLeft, ChevronRight, MessageCircle,
-  ShoppingBag, Clock, ArrowLeft
+  ShoppingBag, Clock, ArrowLeft, Share2
 } from "lucide-react";
 import { listingsApi } from "../api/listings";
 import { chatApi } from "../api/chat";
@@ -68,6 +68,22 @@ export default function ListingDetailPage() {
     if (!user) return navigate("/login");
     if (user.id === listing.seller.id) return toast.error("You can't buy your own listing");
     navigate(`/checkout/${listing.id}`);
+  };
+
+  const handleShare = async () => {
+    const url = window.location.href;
+    const text = `Check out "${listing.title}" on 50% Store for ₹${listing.reselling_price.toLocaleString()}!\n\n${url}`;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: listing.title, text, url });
+      } catch (err) {
+        if (err.name !== "AbortError") {
+          window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
+        }
+      }
+    } else {
+      window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
+    }
   };
 
   if (loading) {
@@ -323,21 +339,30 @@ export default function ListingDetailPage() {
               {/* Desktop CTA */}
               <div className="hidden lg:block">
                 {!isSeller && isActive && (
-                  <div className="flex gap-3">
+                  <div className="flex flex-col gap-2">
+                    <div className="flex gap-3">
+                      <button
+                        onClick={handleChat}
+                        disabled={chatLoading}
+                        className="flex-1 flex items-center justify-center gap-2 border border-zinc-200 text-zinc-700 py-3 rounded-xl text-sm font-medium hover:border-zinc-400 hover:text-zinc-900 transition disabled:opacity-50"
+                      >
+                        <MessageCircle size={16} />
+                        {chatLoading ? "Starting..." : "Chat with Seller"}
+                      </button>
+                      <button
+                        onClick={handleBuy}
+                        className="flex-1 flex items-center justify-center gap-2 bg-blue-600 text-white py-3 rounded-xl text-sm font-semibold hover:bg-blue-700 transition shadow-sm shadow-blue-200"
+                      >
+                        <ShoppingBag size={16} />
+                        Buy Now
+                      </button>
+                    </div>
                     <button
-                      onClick={handleChat}
-                      disabled={chatLoading}
-                      className="flex-1 flex items-center justify-center gap-2 border border-zinc-200 text-zinc-700 py-3 rounded-xl text-sm font-medium hover:border-zinc-400 hover:text-zinc-900 transition disabled:opacity-50"
+                      onClick={handleShare}
+                      className="w-full flex items-center justify-center gap-2 text-zinc-400 py-2 rounded-xl text-xs font-medium hover:text-zinc-600 transition"
                     >
-                      <MessageCircle size={16} />
-                      {chatLoading ? "Starting..." : "Chat with Seller"}
-                    </button>
-                    <button
-                      onClick={handleBuy}
-                      className="flex-1 flex items-center justify-center gap-2 bg-blue-600 text-white py-3 rounded-xl text-sm font-semibold hover:bg-blue-700 transition shadow-sm shadow-blue-200"
-                    >
-                      <ShoppingBag size={16} />
-                      Buy Now
+                      <Share2 size={13} />
+                      Share via WhatsApp
                     </button>
                   </div>
                 )}
@@ -360,21 +385,30 @@ export default function ListingDetailPage() {
 
       {/* Mobile fixed CTA bar */}
       {!isSeller && isActive && (
-        <div className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-white border-t border-zinc-100 px-4 py-3 flex gap-3" style={{ paddingBottom: "calc(12px + env(safe-area-inset-bottom, 0px))" }}>
+        <div className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-white border-t border-zinc-100 px-4 pt-3 pb-3 flex flex-col gap-2" style={{ paddingBottom: "calc(12px + env(safe-area-inset-bottom, 0px))" }}>
+          <div className="flex gap-3">
+            <button
+              onClick={handleChat}
+              disabled={chatLoading}
+              className="flex-1 flex items-center justify-center gap-2 border border-zinc-200 text-zinc-700 py-3 rounded-xl text-sm font-medium hover:border-zinc-400 transition disabled:opacity-50"
+            >
+              <MessageCircle size={16} />
+              {chatLoading ? "Starting..." : "Chat"}
+            </button>
+            <button
+              onClick={handleBuy}
+              className="flex-1 flex items-center justify-center gap-2 bg-blue-600 text-white py-3 rounded-xl text-sm font-semibold hover:bg-blue-700 transition shadow-sm shadow-blue-200"
+            >
+              <ShoppingBag size={16} />
+              Buy ₹{listing.reselling_price.toLocaleString()}
+            </button>
+          </div>
           <button
-            onClick={handleChat}
-            disabled={chatLoading}
-            className="flex-1 flex items-center justify-center gap-2 border border-zinc-200 text-zinc-700 py-3 rounded-xl text-sm font-medium hover:border-zinc-400 transition disabled:opacity-50"
+            onClick={handleShare}
+            className="w-full flex items-center justify-center gap-1.5 text-zinc-400 py-1 rounded-xl text-xs font-medium hover:text-zinc-600 transition"
           >
-            <MessageCircle size={16} />
-            {chatLoading ? "Starting..." : "Chat"}
-          </button>
-          <button
-            onClick={handleBuy}
-            className="flex-1 flex items-center justify-center gap-2 bg-blue-600 text-white py-3 rounded-xl text-sm font-semibold hover:bg-blue-700 transition shadow-sm shadow-blue-200"
-          >
-            <ShoppingBag size={16} />
-            Buy ₹{listing.reselling_price.toLocaleString()}
+            <Share2 size={12} />
+            Share via WhatsApp
           </button>
         </div>
       )}

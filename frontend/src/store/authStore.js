@@ -1,9 +1,11 @@
 import { create } from "zustand";
 import { authApi } from "../api/auth";
+import { chatApi } from "../api/chat";
 
 export const useAuthStore = create((set) => ({
   user: null,
   loading: false,
+  unreadCount: 0,
 
   login: async (email, password) => {
     set({ loading: true });
@@ -65,4 +67,15 @@ export const useAuthStore = create((set) => ({
   },
 
   setUser: (user) => set({ user }),
+
+  fetchUnreadCount: async () => {
+    try {
+      const res = await chatApi.getUnreadCount();
+      set({ unreadCount: res.data.unread_count });
+    } catch {
+      // silently fail — badge just won't update
+    }
+  },
+
+  resetUnreadCount: () => set({ unreadCount: 0 }),
 }));

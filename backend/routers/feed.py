@@ -103,9 +103,21 @@ async def get_feed(
         .where(and_(*filters))
         .order_by(order)
         .offset((page - 1) * page_size)
-        .limit(page_size)
+        .limit(page_size * 2)  # fetch extra for deduplication
     )
     items = result.scalars().all()
+
+    # Seller dedup: first listing per seller goes to primary, rest to secondary
+    seen_sellers: set = set()
+    primary, secondary = [], []
+    for item in items:
+        sid = str(item.seller_id)
+        if sid not in seen_sellers:
+            seen_sellers.add(sid)
+            primary.append(item)
+        else:
+            secondary.append(item)
+    items = (primary + secondary)[:page_size]
 
     return ListingList(items=items, total=total, page=page, page_size=page_size)
 
@@ -194,9 +206,21 @@ async def get_my_feed(
         .where(and_(*filters))
         .order_by(order)
         .offset((page - 1) * page_size)
-        .limit(page_size)
+        .limit(page_size * 2)  # fetch extra for deduplication
     )
     items = result.scalars().all()
+
+    # Seller dedup: first listing per seller goes to primary, rest to secondary
+    seen_sellers: set = set()
+    primary, secondary = [], []
+    for item in items:
+        sid = str(item.seller_id)
+        if sid not in seen_sellers:
+            seen_sellers.add(sid)
+            primary.append(item)
+        else:
+            secondary.append(item)
+    items = (primary + secondary)[:page_size]
 
     return ListingList(items=items, total=total, page=page, page_size=page_size)
 

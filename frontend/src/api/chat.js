@@ -5,4 +5,5 @@ export const chatApi = {
   getConversations: () => api.get("/chat/conversations"),
   getMessages: (conversationId, params) =>
     api.get(`/chat/conversations/${conversationId}/messages`, { params }),
+  getUnreadCount: () => api.get("/chat/unread-count"),
 };

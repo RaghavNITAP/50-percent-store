@@ -12,6 +12,7 @@ function formatTime(dateStr) {
 export default function ChatPage() {
   const { id: conversationId } = useParams();
   const user = useAuthStore((s) => s.user);
+  const resetUnreadCount = useAuthStore((s) => s.resetUnreadCount);
   const [messages, setMessages] = useState([]);
   const [conversation, setConversation] = useState(null);
   const [input, setInput] = useState("");
@@ -21,11 +22,12 @@ export default function ChatPage() {
   const wsRef = useRef(null);
   const bottomRef = useRef(null);
 
-  // Load messages
+  // Load messages + reset unread badge
   useEffect(() => {
     chatApi.getMessages(conversationId, { page: 1, page_size: 50 })
       .then((res) => {
         setMessages(res.data.items);
+        resetUnreadCount(); // local reset so badge clears immediately
       })
       .catch(() => toast.error("Failed to load messages"))
       .finally(() => setLoading(false));

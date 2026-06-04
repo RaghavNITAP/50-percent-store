@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Home, MessageCircle, Plus, User } from "lucide-react";
 import { useAuthStore } from "../store/authStore";
@@ -16,6 +17,16 @@ const HIDDEN_PATHS = [
 export default function BottomNav() {
   const { pathname } = useLocation();
   const user = useAuthStore((s) => s.user);
+  const unreadCount = useAuthStore((s) => s.unreadCount);
+  const fetchUnreadCount = useAuthStore((s) => s.fetchUnreadCount);
+
+  // Poll unread count every 30s — cleanup on unmount to avoid memory leaks
+  useEffect(() => {
+    if (!user) return;
+    fetchUnreadCount();
+    const interval = setInterval(fetchUnreadCount, 30000);
+    return () => clearInterval(interval);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!user) return null;
   if (HIDDEN_PATHS.some((re) => re.test(pathname))) return null;
@@ -40,7 +51,14 @@ export default function BottomNav() {
         </Link>
 
         <Link to="/chat" className={tab("/chat")}>
-          <MessageCircle size={22} strokeWidth={active("/chat") ? 2.5 : 1.8} />
+          <div className="relative">
+            <MessageCircle size={22} strokeWidth={active("/chat") ? 2.5 : 1.8} />
+            {unreadCount > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 bg-red-500 rounded-full text-[9px] text-white font-bold flex items-center justify-center px-0.5">
+                {unreadCount > 9 ? "9+" : unreadCount}
+              </span>
+            )}
+          </div>
           <span className="text-[10px] font-medium">Messages</span>
         </Link>
 
