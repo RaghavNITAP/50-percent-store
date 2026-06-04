@@ -5,6 +5,7 @@ from contextlib import asynccontextmanager
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
+from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
 from routers import auth, listings, feed, search, chat, payments, reviews, locations
 from migrate import run_migrations
 import seed_categories
@@ -31,9 +32,13 @@ app = FastAPI(
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
-# ─── CORS ─────────────────────────────────────────────────────────────────────
-ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "http://localhost:5173").split(",")
+# ─── Middleware ───────────────────────────────────────────────────────────────
+# ProxyHeadersMiddleware must come FIRST — it rewrites request.client.host
+# to the real client IP from X-Forwarded-For (set by Railway's reverse proxy).
+# Without this, all users share the same proxy IP and rate limiting is broken.
+app.add_middleware(ProxyHeadersMiddleware, trusted_hosts="*")
 
+ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "http://localhost:5173").split(",")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_ORIGINS,

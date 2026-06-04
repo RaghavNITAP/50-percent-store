@@ -28,7 +28,7 @@ router = APIRouter(prefix="/auth", tags=["Auth"])
 # ─── Register ─────────────────────────────────────────────────────────────────
 
 @router.post("/register", response_model=UserOut, status_code=201)
-@limiter.limit("3/minute")
+@limiter.limit("20/minute")
 async def register(request: Request, payload: UserRegister, db: AsyncSession = Depends(get_db)):
     # Check duplicate email
     result = await db.execute(select(User).where(User.email == payload.email))
@@ -69,7 +69,7 @@ async def register(request: Request, payload: UserRegister, db: AsyncSession = D
 # ─── Login ────────────────────────────────────────────────────────────────────
 
 @router.post("/login", response_model=TokenResponse)
-@limiter.limit("5/minute")
+@limiter.limit("30/minute")
 async def login(request: Request, payload: UserLogin, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(User).where(User.email == payload.email))
     user = result.scalar_one_or_none()
@@ -97,7 +97,7 @@ async def login(request: Request, payload: UserLogin, db: AsyncSession = Depends
 # ─── Refresh ──────────────────────────────────────────────────────────────────
 
 @router.post("/refresh", response_model=TokenResponse)
-@limiter.limit("10/minute")
+@limiter.limit("60/minute")
 async def refresh(request: Request, payload: RefreshRequest, db: AsyncSession = Depends(get_db)):
     token_hash = hash_refresh_token(payload.refresh_token)
 
