@@ -1,20 +1,31 @@
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from contextlib import asynccontextmanager
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from routers import auth, listings, feed, search, chat, payments, reviews, locations
+from migrate import run_migrations
 import seed_categories
 import os
 
 # ─── Rate Limiter ─────────────────────────────────────────────────────────────
 limiter = Limiter(key_func=get_remote_address)
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Run DB migrations on every startup (idempotent — safe to repeat)
+    await run_migrations()
+    yield
+
+
 app = FastAPI(
     title="50% Store API",
     description="Hyperlocal reselling marketplace",
     version="1.0.0",
+    lifespan=lifespan,
 )
 
 app.state.limiter = limiter
