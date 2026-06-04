@@ -44,8 +44,8 @@ export default function App() {
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
-        <Route path="/" element={<PrivateRoute><FeedPage /></PrivateRoute>} />
-        <Route path="/listing/:id" element={<PrivateRoute><ListingDetailPage /></PrivateRoute>} />
+        <Route path="/" element={<FeedPage />} />
+        <Route path="/listing/:id" element={<ListingDetailPage />} />
         <Route path="/sell" element={<PrivateRoute><CreateListingPage /></PrivateRoute>} />
         <Route path="/chat" element={<PrivateRoute><ChatListPage /></PrivateRoute>} />
         <Route path="/chat/:id" element={<PrivateRoute><ChatPage /></PrivateRoute>} />

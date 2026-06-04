@@ -24,25 +24,38 @@ export default function Navbar() {
           <img src="/logo.png" alt="50% Store" className="h-9 w-auto object-contain" />
         </Link>
 
-        {/* Desktop nav links */}
+        {/* Desktop nav */}
         <div className="hidden lg:flex items-center gap-1">
-          <Link to="/" className={iconClass("/")}>
-            <Home size={20} />
-          </Link>
-          <Link to="/chat" className={iconClass("/chat")}>
-            <MessageCircle size={20} />
-          </Link>
-          <Link to="/profile" className={iconClass("/profile")}>
-            <User size={20} />
-          </Link>
-          {user?.role !== "buyer" && (
-            <Link
-              to="/sell"
-              className="ml-2 flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white px-3.5 py-2 rounded-xl text-sm font-semibold transition-colors"
-            >
-              <Plus size={15} strokeWidth={2.5} />
-              Sell
-            </Link>
+          {user ? (
+            <>
+              <Link to="/" className={iconClass("/")}><Home size={20} /></Link>
+              <Link to="/chat" className={iconClass("/chat")}><MessageCircle size={20} /></Link>
+              <Link to="/profile" className={iconClass("/profile")}><User size={20} /></Link>
+              {user.role !== "buyer" && (
+                <Link
+                  to="/sell"
+                  className="ml-2 flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white px-3.5 py-2 rounded-xl text-sm font-semibold transition-colors"
+                >
+                  <Plus size={15} strokeWidth={2.5} />
+                  Sell
+                </Link>
+              )}
+            </>
+          ) : (
+            <>
+              <Link
+                to="/login"
+                className="px-4 py-2 text-sm font-medium text-zinc-600 hover:text-zinc-900 transition"
+              >
+                Sign in
+              </Link>
+              <Link
+                to="/register"
+                className="ml-1 flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-colors"
+              >
+                Get started
+              </Link>
+            </>
           )}
         </div>
 
