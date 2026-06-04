@@ -47,6 +47,7 @@ export default function FeedPage() {
           q: searchQuery,
           lat: user?.latitude,
           lon: user?.longitude,
+          radius_km: user?.availability_radius_km || 10,
           page,
           page_size: 20,
         });
@@ -67,7 +68,8 @@ export default function FeedPage() {
     }
   };
 
-  useEffect(() => { fetchFeed(); }, [sortBy, page]);
+  // Re-fetch when sort/page changes OR when user finishes loading (user?.id goes null → uuid)
+  useEffect(() => { fetchFeed(); }, [sortBy, page, user?.id]);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -89,10 +91,12 @@ export default function FeedPage() {
       <div className="max-w-6xl mx-auto px-4 lg:px-8 py-4 pb-24 lg:pb-8">
 
         {/* Location strip */}
-        {user?.locality && (
+        {(user?.pincode || user?.locality) && (
           <div className="flex items-center gap-1.5 text-xs text-zinc-500 mb-3">
             <MapPin size={12} className="text-blue-500" />
-            <span className="font-medium">{user.locality}, {user.city}</span>
+            <span className="font-medium">
+              {user.locality ? `${user.locality}${user.city ? `, ${user.city}` : ""}` : `📍 ${user.pincode}`}
+            </span>
             <span className="text-zinc-300">·</span>
             <span>{user.availability_radius_km}km radius</span>
           </div>
@@ -101,7 +105,7 @@ export default function FeedPage() {
         {!user?.latitude && (
           <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-xl px-4 py-2.5 mb-3 text-xs text-amber-700">
             <MapPin size={13} className="flex-shrink-0" />
-            <span>📍 Enable location in your <Link to="/profile" className="font-semibold underline">Profile</Link> to see items near you.</span>
+            <span>📍 Add your pincode in <Link to="/profile" className="font-semibold underline">Profile</Link> to see items near you.</span>
           </div>
         )}
 
