@@ -7,7 +7,7 @@ import toast from "react-hot-toast";
 
 export default function RegisterPage() {
   const [form, setForm] = useState({
-    full_name: "", email: "", password: "", role: "buyer", city: "", locality: "",
+    full_name: "", email: "", password: "", role: "both", city: "", locality: "",
     latitude: null, longitude: null, availability_radius_km: 5,
   });
   const [locating, setLocating] = useState(false);
@@ -126,21 +126,6 @@ export default function RegisterPage() {
             </div>
           </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-zinc-600 mb-2">I want to</label>
-            <div className="grid grid-cols-3 gap-2">
-              {[{ value: "buyer", label: "Buy" }, { value: "seller", label: "Sell" }, { value: "both", label: "Both" }].map((r) => (
-                <button key={r.value} type="button" onClick={() => setForm({ ...form, role: r.value })}
-                  className={`py-2.5 rounded-xl text-sm font-medium border transition ${
-                    form.role === r.value
-                      ? "bg-blue-600 text-white border-blue-600 shadow-sm shadow-blue-200"
-                      : "bg-white text-zinc-600 border-zinc-200 hover:border-zinc-400"
-                  }`}>
-                  {r.label}
-                </button>
-              ))}
-            </div>
-          </div>
 
           <button type="submit" disabled={loading}
             className="w-full bg-blue-600 text-white py-3 rounded-xl text-sm font-semibold hover:bg-blue-700 disabled:opacity-50 transition shadow-sm shadow-blue-200 mt-2">
