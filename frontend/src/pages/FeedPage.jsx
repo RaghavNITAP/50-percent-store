@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { Search, MapPin, SlidersHorizontal, X } from "lucide-react";
+import { Link, useSearchParams } from "react-router-dom";
+import { Search, MapPin, X } from "lucide-react";
 import { feedApi, searchApi, listingsApi } from "../api/listings";
 import { useAuthStore } from "../store/authStore";
 import Navbar from "../components/Navbar";
@@ -8,10 +8,10 @@ import ListingCard from "../components/ListingCard";
 import toast from "react-hot-toast";
 
 const SORT_OPTIONS = [
-  { value: "recent", label: "Recent" },
-  { value: "price_asc", label: "Price ↑" },
+  { value: "recent",     label: "Recent" },
+  { value: "price_asc",  label: "Price ↑" },
   { value: "price_desc", label: "Price ↓" },
-  { value: "nearest", label: "Nearest" },
+  { value: "nearest",    label: "Nearest" },
 ];
 
 function SkeletonCard() {
@@ -29,62 +29,81 @@ function SkeletonCard() {
 
 export default function FeedPage() {
   const user = useAuthStore((s) => s.user);
-  const [listings, setListings] = useState([]);
-  const [total, setTotal] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [sortBy, setSortBy] = useState("recent");
-  const [page, setPage] = useState(1);
-  const [isSearching, setIsSearching] = useState(false);
 
-  const fetchFeed = async () => {
-    setLoading(true);
-    try {
-      let res;
-      if (searchQuery.trim()) {
-        setIsSearching(true);
-        res = await searchApi.search({
-          q: searchQuery,
-          // Only pass location if user has one set — otherwise backend shows all India
-          ...(user?.latitude && {
-            lat: user.latitude,
-            lon: user.longitude,
-            radius_km: user.availability_radius_km,
-          }),
-          page,
-          page_size: 20,
-        });
-      } else {
-        setIsSearching(false);
-        if (user?.latitude) {
+  // ── Search lives in the URL so logo click (→ "/") auto-clears it ──────────
+  const [searchParams, setSearchParams] = useSearchParams();
+  const qFromUrl = searchParams.get("q") || "";
+
+  const [inputValue, setInputValue]   = useState(qFromUrl);
+  const [sortBy,     setSortBy]       = useState("recent");
+  const [page,       setPage]         = useState(1);
+  const [listings,   setListings]     = useState([]);
+  const [total,      setTotal]        = useState(0);
+  const [loading,    setLoading]      = useState(true);
+
+  const isSearching = !!qFromUrl;
+
+  // Sync input when URL changes (e.g. logo click clears ?q=)
+  useEffect(() => {
+    setInputValue(qFromUrl);
+  }, [qFromUrl]);
+
+  // ── Fetch whenever URL search param, sort, page, or user changes ──────────
+  useEffect(() => {
+    let cancelled = false;
+
+    const run = async () => {
+      setLoading(true);
+      try {
+        let res;
+        if (qFromUrl.trim()) {
+          res = await searchApi.search({
+            q: qFromUrl.trim(),
+            // Only attach location if user has one — otherwise show all India
+            ...(user?.latitude && {
+              lat: user.latitude,
+              lon: user.longitude,
+              radius_km: user.availability_radius_km,
+            }),
+            page,
+            page_size: 20,
+          });
+        } else if (user?.latitude) {
           res = await feedApi.getMyFeed({ sort_by: sortBy, page, page_size: 20 });
         } else {
           res = await listingsApi.list({ sort_by: sortBy, page, page_size: 20 });
         }
+        if (!cancelled) {
+          setListings(res.data.items);
+          setTotal(res.data.total);
+        }
+      } catch {
+        if (!cancelled) toast.error("Failed to load listings");
+      } finally {
+        if (!cancelled) setLoading(false);
       }
-      setListings(res.data.items);
-      setTotal(res.data.total);
-    } catch {
-      toast.error("Failed to load listings");
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
 
-  // Re-fetch when sort/page changes OR when user finishes loading (user?.id goes null → uuid)
-  useEffect(() => { fetchFeed(); }, [sortBy, page, user?.id]);
+    run();
+    return () => { cancelled = true; };
+  }, [qFromUrl, sortBy, page, user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // ── Handlers ──────────────────────────────────────────────────────────────
   const handleSearch = (e) => {
     e.preventDefault();
     setPage(1);
-    fetchFeed();
+    const trimmed = inputValue.trim();
+    if (trimmed) {
+      setSearchParams({ q: trimmed });
+    } else {
+      setSearchParams({});
+    }
   };
 
   const clearSearch = () => {
-    setSearchQuery("");
-    setIsSearching(false);
+    setInputValue("");
     setPage(1);
-    setTimeout(fetchFeed, 0);
+    setSearchParams({});
   };
 
   return (
@@ -98,7 +117,9 @@ export default function FeedPage() {
           <div className="flex items-center gap-1.5 text-xs text-zinc-500 mb-3">
             <MapPin size={12} className="text-blue-500" />
             <span className="font-medium">
-              {user.locality ? `${user.locality}${user.city ? `, ${user.city}` : ""}` : `📍 ${user.pincode}`}
+              {user.locality
+                ? `${user.locality}${user.city ? `, ${user.city}` : ""}`
+                : `📍 ${user.pincode}`}
             </span>
             <span className="text-zinc-300">·</span>
             <span>{user.availability_radius_km}km radius</span>
@@ -112,23 +133,27 @@ export default function FeedPage() {
           </div>
         )}
 
-        {/* Search */}
+        {/* Search bar */}
         <form onSubmit={handleSearch} className="relative mb-4">
           <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 pointer-events-none" />
           <input
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
             placeholder="Search anything... 'red Nike shoes', 'iPhone 13'..."
             className="w-full pl-10 pr-10 py-3 bg-white border border-zinc-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition"
           />
-          {searchQuery && (
-            <button type="button" onClick={clearSearch} className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 transition">
+          {inputValue && (
+            <button
+              type="button"
+              onClick={clearSearch}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 transition"
+            >
               <X size={16} />
             </button>
           )}
         </form>
 
-        {/* Sort pills */}
+        {/* Sort pills — only when not searching */}
         {!isSearching && (
           <div className="flex gap-2 mb-4 overflow-x-auto pb-1 scrollbar-none">
             {SORT_OPTIONS.map((opt) => (
@@ -151,7 +176,7 @@ export default function FeedPage() {
         {!loading && (
           <p className="text-xs text-zinc-400 mb-3">
             {isSearching
-              ? <><span className="font-medium text-zinc-600">{total}</span> results for "<span className="font-medium text-zinc-700">{searchQuery}</span>"</>
+              ? <><span className="font-medium text-zinc-600">{total}</span> results for "<span className="font-medium text-zinc-700">{qFromUrl}</span>"</>
               : <><span className="font-medium text-zinc-600">{total}</span> listings {user?.locality ? "near you" : "available"}</>
             }
           </p>
