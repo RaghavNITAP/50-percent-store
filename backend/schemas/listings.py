@@ -54,6 +54,7 @@ class ListingCreate(BaseModel):
     pickup_longitude: float
     pickup_radius_km: float = 3.0
     additional_pickups: Optional[List[PickupPointIn]] = []
+    pincode: Optional[str] = None
 
     @field_validator("reselling_price")
     @classmethod
@@ -78,6 +79,7 @@ class ListingUpdate(BaseModel):
     pickup_longitude: Optional[float] = None
     pickup_radius_km: Optional[float] = None
     status: Optional[ListingStatus] = None
+    pincode: Optional[str] = None
 
 
 class SellerBrief(BaseModel):
@@ -112,6 +114,7 @@ class ListingOut(BaseModel):
     additional_pickups: List[PickupPointOut] = []
     ai_suggested_price: Optional[float] = None
     ai_quality_score: Optional[float] = None
+    pincode: Optional[str] = None
     model_config = {"from_attributes": True}
 
 

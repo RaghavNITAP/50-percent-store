@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  Plus, X, Sparkles, MapPin, Loader2,
+  Plus, X, Sparkles, Loader2,
   ToggleLeft, ToggleRight, CheckCircle, ChevronLeft,
 } from "lucide-react";
 import { listingsApi, categoriesApi } from "../api/listings";
+import { locationsApi } from "../api/locations";
 import { useAuthStore } from "../store/authStore";
 import Navbar from "../components/Navbar";
 import toast from "react-hot-toast";
@@ -33,7 +34,6 @@ export default function CreateListingPage() {
   const [categories, setCategories] = useState([]);
   const [aiLoading, setAiLoading] = useState(null);  // null | "description" | "defects"
   const [aiDone, setAiDone] = useState(null);         // null | "description" | "defects"
-  const [locating, setLocating] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   const [form, setForm] = useState({
@@ -47,9 +47,7 @@ export default function CreateListingPage() {
     defects: "",
     is_negotiable: false,
     pickup_address: "",
-    pickup_latitude: user?.latitude ?? null,
-    pickup_longitude: user?.longitude ?? null,
-    pickup_radius_km: 3,
+    pincode: user?.pincode || "",
   });
 
   useEffect(() => {
@@ -95,49 +93,25 @@ export default function CreateListingPage() {
     }
   };
 
-  const detectLocation = () => {
-    if (!navigator.geolocation) {
-      toast.error("Geolocation not supported. Using fallback location.");
-      setForm((f) => ({
-        ...f,
-        pickup_latitude: 19.0760, // Fallback (Mumbai Latitude)
-        pickup_longitude: 72.8777, // Fallback (Mumbai Longitude)
-      }));
-      return;
-    }
-    setLocating(true);
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setForm((f) => ({
-          ...f,
-          pickup_latitude: pos.coords.latitude,
-          pickup_longitude: pos.coords.longitude,
-        }));
-        setLocating(false);
-        toast.success("Location detected");
-      },
-      (err) => { 
-        setLocating(false); 
-        toast.error("Could not detect location: " + err.message + ". Using fallback location."); 
-        // Fallback coordinates so user is not blocked
-        setForm((f) => ({
-          ...f,
-          pickup_latitude: 19.0760,
-          pickup_longitude: 72.8777,
-        }));
-      }
-    );
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.pickup_latitude || !form.pickup_longitude)
-      return toast.error("Set your pickup location first");
+    if (!form.pincode || !/^\d{6}$/.test(form.pincode))
+      return toast.error("Enter a valid 6-digit pincode");
     if (!form.reselling_price || Number(form.reselling_price) <= 0)
       return toast.error("Enter a valid selling price");
 
     setSubmitting(true);
     try {
+      // Resolve pincode → lat/lon
+      let geoRes;
+      try {
+        geoRes = await locationsApi.resolvePincode(form.pincode);
+      } catch {
+        setSubmitting(false);
+        return toast.error("Invalid pincode. Please check and try again.");
+      }
+
       const payload = {
         title: form.title,
         description: form.description,
@@ -149,9 +123,10 @@ export default function CreateListingPage() {
         defects: form.defects || null,
         is_negotiable: form.is_negotiable,
         pickup_address: form.pickup_address || null,
-        pickup_latitude: form.pickup_latitude,
-        pickup_longitude: form.pickup_longitude,
+        pickup_latitude: geoRes.data.latitude,
+        pickup_longitude: geoRes.data.longitude,
         pickup_radius_km: 0,
+        pincode: form.pincode,
       };
 
       const fd = new FormData();
@@ -392,26 +367,22 @@ export default function CreateListingPage() {
           <div className="bg-white rounded-2xl border border-gray-100 p-5 space-y-4">
             <h2 className="text-sm font-semibold text-gray-900">Pickup Location</h2>
 
-            <button
-              type="button"
-              onClick={detectLocation}
-              disabled={locating}
-              className="w-full flex items-center justify-center gap-2 border border-gray-200 rounded-xl py-2.5 text-sm text-gray-600 hover:border-gray-400 hover:text-black transition disabled:opacity-50"
-            >
-              {locating ? (
-                <><Loader2 size={14} className="animate-spin" />Detecting...</>
-              ) : form.pickup_latitude ? (
-                <><MapPin size={14} className="text-emerald-600" />Location set ✓ (tap to re-detect)</>
-              ) : (
-                <><MapPin size={14} />Use my current location</>
-              )}
-            </button>
-
-            {form.pickup_latitude && (
-              <p className="text-xs text-center text-gray-400">
-                📍 {form.pickup_latitude.toFixed(5)}, {form.pickup_longitude.toFixed(5)}
-              </p>
-            )}
+            <div>
+              <label className="block text-xs font-medium text-gray-500 mb-1.5">
+                Pincode *
+              </label>
+              <input
+                type="text"
+                value={form.pincode}
+                onChange={(e) => set("pincode", e.target.value)}
+                placeholder="e.g. 462011"
+                maxLength={6}
+                inputMode="numeric"
+                required
+                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <p className="text-xs text-gray-400 mt-1">Buyers will see "Pickup near {form.pincode || "your pincode"}"</p>
+            </div>
 
             <div>
               <label className="block text-xs font-medium text-gray-500 mb-1.5">
@@ -429,17 +400,11 @@ export default function CreateListingPage() {
           {/* ── Submit ── */}
           <button
             type="submit"
-            disabled={submitting || !form.pickup_latitude}
+            disabled={submitting}
             className="w-full bg-blue-600 text-white py-3.5 rounded-xl text-sm font-semibold hover:bg-blue-700 disabled:opacity-50 transition"
           >
             {submitting ? "Posting..." : "Post Listing"}
           </button>
-
-          {!form.pickup_latitude && (
-            <p className="text-xs text-center text-gray-400 pb-4">
-              Set your pickup location to enable posting
-            </p>
-          )}
 
         </form>
       </div>

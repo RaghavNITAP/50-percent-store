@@ -68,6 +68,7 @@ class User(Base):
     latitude = Column(Float, nullable=True)
     longitude = Column(Float, nullable=True)
     availability_radius_km = Column(Float, default=5.0)
+    pincode = Column(String(10), nullable=True)
 
     # Meta
     is_active = Column(Boolean, default=True)
@@ -160,6 +161,7 @@ class Listing(Base):
 
     # Location (pickup point)
     pickup_address = Column(Text, nullable=True)
+    pincode = Column(String(10), nullable=True)
     pickup_latitude = Column(Float, nullable=False)
     pickup_longitude = Column(Float, nullable=False)
     pickup_radius_km = Column(Float, default=3.0)
@@ -304,3 +306,16 @@ class Review(Base):
     __table_args__ = (
         CheckConstraint("rating >= 1 AND rating <= 5", name="valid_rating"),
     )
+
+
+# ─── Pincode Cache ─────────────────────────────────────────────────────────────────────────────────
+
+class PincodeCache(Base):
+    __tablename__ = "pincode_cache"
+
+    pincode = Column(String(10), primary_key=True)
+    latitude = Column(Float, nullable=True)
+    longitude = Column(Float, nullable=True)
+    bounding_radius_km = Column(Float, nullable=True)
+    is_valid = Column(Boolean, default=True, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())

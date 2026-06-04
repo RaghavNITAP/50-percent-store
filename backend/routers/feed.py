@@ -6,7 +6,7 @@ from typing import Optional
 from uuid import UUID
 
 from database import get_db
-from models import Listing, ListingStatus, User
+from models import Listing, ListingStatus, User, PincodeCache
 from schemas.listings import ListingList, ListingOut
 from core.dependencies import get_current_user
 from core.geo import haversine_distance, zones_overlap
@@ -138,12 +138,24 @@ async def get_my_feed(
     if not current_user.latitude or not current_user.longitude:
         raise HTTPException(
             status_code=400,
-            detail="Set your location first via PATCH /auth/me"
+            detail="Set your pincode first via your profile"
         )
 
     lat = current_user.latitude
     lon = current_user.longitude
+
+    # Adaptive pincode buffer: look up the actual geographic size of the user's pincode
+    pincode_buffer = 2.5  # safe fallback (km)
+    if current_user.pincode:
+        pc_result = await db.execute(
+            select(PincodeCache).where(PincodeCache.pincode == current_user.pincode)
+        )
+        pc_info = pc_result.scalar_one_or_none()
+        if pc_info and pc_info.bounding_radius_km:
+            pincode_buffer = min(pc_info.bounding_radius_km, 15.0)  # clamp at 15km
+
     radius_km = radius_override or current_user.availability_radius_km
+    effective_radius_km = radius_km + pincode_buffer
 
     filters = [Listing.status == ListingStatus.active]
 
@@ -176,7 +188,7 @@ async def get_my_feed(
                     * cos(radians(pickup_longitude) - radians({lon}))
                     + sin(radians({lat})) * sin(radians(pickup_latitude))
                 )
-            )) <= ({radius_km} + pickup_radius_km)
+            )) <= ({effective_radius_km} + pickup_radius_km)
         )
     """)
 

@@ -9,6 +9,7 @@ import { authApi } from "../api/auth";
 import { listingsApi } from "../api/listings";
 import { paymentsApi } from "../api/payments";
 import { reviewsApi } from "../api/reviews";
+import { locationsApi } from "../api/locations";
 import Navbar from "../components/Navbar";
 import toast from "react-hot-toast";
 
@@ -42,11 +43,11 @@ export default function ProfilePage() {
   const [tab,     setTab]     = useState("listings");
   const [editing, setEditing] = useState(false);
   const [saving,  setSaving]  = useState(false);
-  const [locating, setLocating] = useState(false);
+  const [resolving, setResolving] = useState(false);
 
   const [editForm, setEditForm] = useState({
     full_name: "", city: "", locality: "", availability_radius_km: 5,
-    latitude: null, longitude: null,
+    pincode: "", latitude: null, longitude: null,
   });
 
   const [listings,   setListings]   = useState([]);
@@ -61,6 +62,7 @@ export default function ProfilePage() {
         city: user.city || "",
         locality: user.locality || "",
         availability_radius_km: user.availability_radius_km || 5,
+        pincode: user.pincode || "",
         latitude: user.latitude || null,
         longitude: user.longitude || null,
       });
@@ -88,20 +90,30 @@ export default function ProfilePage() {
     }
   }, [tab, user]);
 
-  const detectLocation = () => {
-    if (!navigator.geolocation) return toast.error("Geolocation not supported");
-    setLocating(true);
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setEditForm((f) => ({ ...f, latitude: pos.coords.latitude, longitude: pos.coords.longitude }));
-        setLocating(false);
-        toast.success("Location updated");
-      },
-      (err) => { setLocating(false); toast.error("Could not detect location: " + err.message); }
-    );
-  };
+
 
   const handleSave = async () => {
+    if (editForm.pincode && !/^\d{6}$/.test(editForm.pincode)) {
+      return toast.error("Pincode must be exactly 6 digits");
+    }
+
+    let lat = editForm.latitude;
+    let lon = editForm.longitude;
+
+    // Resolve pincode if it changed
+    if (editForm.pincode && editForm.pincode !== user.pincode) {
+      setResolving(true);
+      try {
+        const res = await locationsApi.resolvePincode(editForm.pincode);
+        lat = res.data.latitude;
+        lon = res.data.longitude;
+      } catch {
+        setResolving(false);
+        return toast.error("Invalid pincode. Please check and try again.");
+      }
+      setResolving(false);
+    }
+
     setSaving(true);
     try {
       await authApi.updateMe({
@@ -109,8 +121,9 @@ export default function ProfilePage() {
         city: editForm.city || undefined,
         locality: editForm.locality || undefined,
         availability_radius_km: editForm.availability_radius_km,
-        latitude: editForm.latitude || undefined,
-        longitude: editForm.longitude || undefined,
+        pincode: editForm.pincode || undefined,
+        latitude: lat || undefined,
+        longitude: lon || undefined,
       });
       await fetchMe();
       setEditing(false);
@@ -161,9 +174,9 @@ export default function ProfilePage() {
               {!editing && (
                 <div className="flex items-center gap-1.5 text-xs text-zinc-400 mb-4">
                   <MapPin size={12} />
-                  {user.locality || user.city
-                    ? <span>{user.locality}{user.city && `, ${user.city}`} · {user.availability_radius_km}km</span>
-                    : <button onClick={() => setEditing(true)} className="text-amber-500 hover:underline">Add location</button>
+                  {user.pincode
+                    ? <span>📍 {user.pincode}{user.locality && ` · ${user.locality}`}{user.city && `, ${user.city}`} · {user.availability_radius_km}km</span>
+                    : <button onClick={() => setEditing(true)} className="text-amber-500 hover:underline">Add pincode</button>
                   }
                 </div>
               )}
@@ -191,14 +204,17 @@ export default function ProfilePage() {
                       className="w-full border border-zinc-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
-                  <button type="button" onClick={detectLocation} disabled={locating}
-                    className={`w-full flex items-center justify-center gap-2 border rounded-xl py-2 text-sm transition disabled:opacity-50 ${
-                      editForm.latitude ? "border-emerald-300 text-emerald-700 bg-emerald-50" : "border-zinc-200 text-zinc-600 hover:border-zinc-400"
-                    }`}>
-                    {locating ? <><Loader2 size={13} className="animate-spin" />Detecting...</>
-                      : editForm.latitude ? <><MapPin size={13} />Location set ✓</>
-                      : <><MapPin size={13} />Detect my location</>}
-                  </button>
+                  <div>
+                    <label className="block text-xs font-medium text-zinc-500 mb-1">Pincode</label>
+                    <input
+                      value={editForm.pincode}
+                      onChange={(e) => setEditForm((f) => ({ ...f, pincode: e.target.value }))}
+                      placeholder="e.g. 462011"
+                      maxLength={6}
+                      inputMode="numeric"
+                      className="w-full border border-zinc-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
                   <div>
                     <div className="flex justify-between text-xs text-zinc-500 mb-1">
                       <span>Discovery Radius</span>
@@ -219,11 +235,11 @@ export default function ProfilePage() {
                 {editing ? (
                   <>
                     <button
-                      onClick={handleSave} disabled={saving}
+                      onClick={handleSave} disabled={saving || resolving}
                       className="flex-1 flex items-center justify-center gap-1.5 bg-blue-600 text-white py-2 rounded-xl text-sm font-medium hover:bg-blue-700 transition disabled:opacity-50"
                     >
-                      {saving ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
-                      Save
+                      {resolving ? <><Loader2 size={14} className="animate-spin" />Verifying...</> : saving ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
+                      {!resolving && "Save"}
                     </button>
                     <button
                       onClick={() => setEditing(false)}

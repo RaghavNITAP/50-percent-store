@@ -79,6 +79,7 @@ class UserOut(BaseModel):
     is_verified: bool
     avatar_url: Optional[str]
     trust_score: int = 70
+    pincode: Optional[str] = None
 
     model_config = {"from_attributes": True}
 
@@ -92,3 +93,4 @@ class UserUpdate(BaseModel):
     longitude: Optional[float] = None
     availability_radius_km: Optional[float] = None
     avatar_url: Optional[str] = None
+    pincode: Optional[str] = None

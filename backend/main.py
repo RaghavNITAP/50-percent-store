@@ -4,7 +4,7 @@ from fastapi.responses import JSONResponse
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
-from routers import auth, listings, feed, search, chat, payments, reviews
+from routers import auth, listings, feed, search, chat, payments, reviews, locations
 import seed_categories
 import os
 
@@ -39,6 +39,7 @@ app.include_router(search.router)
 app.include_router(chat.router)
 app.include_router(payments.router)
 app.include_router(reviews.router)
+app.include_router(locations.router)
 
 
 @app.get("/")

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ChevronLeft, Loader2, ToggleLeft, ToggleRight, Trash2 } from "lucide-react";
 import { listingsApi, categoriesApi } from "../api/listings";
+import { locationsApi } from "../api/locations";
 import { useAuthStore } from "../store/authStore";
 import Navbar from "../components/Navbar";
 import toast from "react-hot-toast";
@@ -39,6 +40,7 @@ export default function EditListingPage() {
     defects: "",
     is_negotiable: false,
     pickup_address: "",
+    pincode: "",
     status: "active",
   });
 
@@ -63,6 +65,7 @@ export default function EditListingPage() {
           defects: l.defects || "",
           is_negotiable: l.is_negotiable || false,
           pickup_address: l.pickup_address || "",
+          pincode: l.pincode || "",
           status: l.status || "active",
         });
       })
@@ -78,7 +81,7 @@ export default function EditListingPage() {
       return toast.error("Enter a valid selling price");
     setSubmitting(true);
     try {
-      await listingsApi.update(id, {
+      const updatePayload = {
         title: form.title,
         description: form.description,
         condition: form.condition,
@@ -90,7 +93,22 @@ export default function EditListingPage() {
         is_negotiable: form.is_negotiable,
         pickup_address: form.pickup_address || null,
         status: form.status,
-      });
+      };
+
+      // If pincode provided, resolve it to update the pickup location
+      if (form.pincode && /^\d{6}$/.test(form.pincode)) {
+        try {
+          const geoRes = await locationsApi.resolvePincode(form.pincode);
+          updatePayload.pickup_latitude = geoRes.data.latitude;
+          updatePayload.pickup_longitude = geoRes.data.longitude;
+          updatePayload.pincode = form.pincode;
+        } catch {
+          setSubmitting(false);
+          return toast.error("Invalid pincode. Please check and try again.");
+        }
+      }
+
+      await listingsApi.update(id, updatePayload);
       toast.success("Listing updated!");
       navigate(`/listing/${id}`);
     } catch (err) {
@@ -222,6 +240,22 @@ export default function EditListingPage() {
                   {form.is_negotiable ? <ToggleRight size={18} /> : <ToggleLeft size={18} />}
                 </button>
               </div>
+            </div>
+
+            {/* Pincode */}
+            <div>
+              <label className="block text-xs font-medium text-gray-500 mb-1.5">
+                Pickup Pincode <span className="text-gray-300">(optional — updates location)</span>
+              </label>
+              <input
+                type="text"
+                value={form.pincode}
+                onChange={(e) => set("pincode", e.target.value)}
+                placeholder="e.g. 462011"
+                maxLength={6}
+                inputMode="numeric"
+                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
             </div>
           </div>
 

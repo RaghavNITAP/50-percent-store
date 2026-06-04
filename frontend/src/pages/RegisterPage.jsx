@@ -2,48 +2,47 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
 import { GoogleLogin } from "@react-oauth/google";
-import { MapPin, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import { locationsApi } from "../api/locations";
 import toast from "react-hot-toast";
 
 export default function RegisterPage() {
   const [form, setForm] = useState({
-    full_name: "", email: "", password: "", role: "both", city: "", locality: "",
+    full_name: "", email: "", password: "", role: "both",
+    city: "", locality: "", pincode: "",
     latitude: null, longitude: null, availability_radius_km: 5,
   });
-  const [locating, setLocating] = useState(false);
+  const [resolving, setResolving] = useState(false);
   const register = useAuthStore((s) => s.register);
-  const loginWithGoogle = useAuthStore((s) => s.loginWithGoogle);
   const loading = useAuthStore((s) => s.loading);
   const navigate = useNavigate();
 
-  const handleGoogleSuccess = async (credentialResponse) => {
-    try {
-      await loginWithGoogle(credentialResponse.credential);
-      navigate("/");
-    } catch {
-      toast.error("Google login failed");
-    }
-  };
-
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
-
-  const detectLocation = () => {
-    if (!navigator.geolocation) return toast.error("Geolocation not supported");
-    setLocating(true);
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setForm((f) => ({ ...f, latitude: pos.coords.latitude, longitude: pos.coords.longitude }));
-        setLocating(false);
-        toast.success("Location detected");
-      },
-      (err) => { setLocating(false); toast.error("Could not detect location: " + err.message); }
-    );
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    let submitData = { ...form };
+
+    // Resolve pincode to lat/lon before submitting
+    if (form.pincode) {
+      if (!/^\d{6}$/.test(form.pincode)) {
+        return toast.error("Pincode must be exactly 6 digits");
+      }
+      setResolving(true);
+      try {
+        const res = await locationsApi.resolvePincode(form.pincode);
+        submitData.latitude = res.data.latitude;
+        submitData.longitude = res.data.longitude;
+      } catch {
+        return toast.error("Invalid pincode. Please check and try again.");
+      } finally {
+        setResolving(false);
+      }
+    }
+
     try {
-      await register(form);
+      await register(submitData);
       toast.success("Account created!");
       navigate("/");
     } catch (err) {
@@ -96,22 +95,23 @@ export default function RegisterPage() {
             </div>
           </div>
 
-          {/* GPS */}
+          {/* Pincode */}
           <div>
             <label className="block text-xs font-semibold text-zinc-600 mb-1.5">
-              Location <span className="text-zinc-400 font-normal">(optional — for nearby listings)</span>
+              Pincode <span className="text-zinc-400 font-normal">(for nearby listings)</span>
             </label>
-            <button type="button" onClick={detectLocation} disabled={locating}
-              className={`w-full flex items-center justify-center gap-2 border rounded-xl py-2.5 text-sm transition disabled:opacity-50 ${
-                form.latitude ? "border-emerald-300 text-emerald-700 bg-emerald-50" : "border-zinc-200 text-zinc-600 hover:border-zinc-400"
-              }`}>
-              {locating ? <><Loader2 size={14} className="animate-spin" />Detecting...</>
-                : form.latitude ? <><MapPin size={14} />Location set ✓</>
-                : <><MapPin size={14} />Detect my location</>}
-            </button>
+            <input
+              name="pincode"
+              value={form.pincode}
+              onChange={handleChange}
+              placeholder="e.g. 462011"
+              maxLength={6}
+              inputMode="numeric"
+              className="w-full border border-zinc-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+            />
           </div>
 
-          {/* Radius slider */}
+          {/* Discovery Radius */}
           <div>
             <div className="flex justify-between text-xs text-zinc-500 mb-1">
               <span className="font-semibold text-zinc-600">Discovery Radius</span>
@@ -126,10 +126,13 @@ export default function RegisterPage() {
             </div>
           </div>
 
-
-          <button type="submit" disabled={loading}
+          <button type="submit" disabled={loading || resolving}
             className="w-full bg-blue-600 text-white py-3 rounded-xl text-sm font-semibold hover:bg-blue-700 disabled:opacity-50 transition shadow-sm shadow-blue-200 mt-2">
-            {loading ? "Creating account..." : "Create account"}
+            {resolving ? (
+              <span className="flex items-center justify-center gap-2">
+                <Loader2 size={14} className="animate-spin" /> Verifying pincode...
+              </span>
+            ) : loading ? "Creating account..." : "Create account"}
           </button>
 
           <div className="flex items-center gap-3 my-1">
