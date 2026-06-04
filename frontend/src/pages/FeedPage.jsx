@@ -45,9 +45,12 @@ export default function FeedPage() {
         setIsSearching(true);
         res = await searchApi.search({
           q: searchQuery,
-          lat: user?.latitude,
-          lon: user?.longitude,
-          radius_km: user?.availability_radius_km || 10,
+          // Only pass location if user has one set — otherwise backend shows all India
+          ...(user?.latitude && {
+            lat: user.latitude,
+            lon: user.longitude,
+            radius_km: user.availability_radius_km,
+          }),
           page,
           page_size: 20,
         });
