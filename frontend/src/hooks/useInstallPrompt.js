@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 export function useInstallPrompt() {
-  const [prompt, setPrompt] = useState(null);
+  const [canInstall, setCanInstall] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
+  const promptRef = useRef(null); // useRef keeps the event stable across renders
 
   useEffect(() => {
     // Already installed as PWA
@@ -12,23 +13,40 @@ export function useInstallPrompt() {
     }
 
     const handler = (e) => {
-      e.preventDefault();
-      setPrompt(e);
+      e.preventDefault(); // Suppress native mini-infobar
+      promptRef.current = e;
+      setCanInstall(true);
+    };
+
+    const onInstalled = () => {
+      setIsInstalled(true);
+      setCanInstall(false);
+      promptRef.current = null;
     };
 
     window.addEventListener("beforeinstallprompt", handler);
-    window.addEventListener("appinstalled", () => setIsInstalled(true));
+    window.addEventListener("appinstalled", onInstalled);
 
-    return () => window.removeEventListener("beforeinstallprompt", handler);
+    return () => {
+      window.removeEventListener("beforeinstallprompt", handler);
+      window.removeEventListener("appinstalled", onInstalled);
+    };
   }, []);
 
   const install = async () => {
-    if (!prompt) return;
-    prompt.prompt();
-    const { outcome } = await prompt.userChoice;
+    if (!promptRef.current) return;
+    promptRef.current.prompt();
+    const { outcome } = await promptRef.current.userChoice;
     if (outcome === "accepted") setIsInstalled(true);
-    setPrompt(null);
+    promptRef.current = null;
+    setCanInstall(false);
   };
 
-  return { canInstall: !!prompt && !isInstalled, install, isInstalled };
+  // Call this when user dismisses the banner without installing
+  const dismiss = () => {
+    promptRef.current = null; // Release the event — stops Chrome warning
+    setCanInstall(false);
+  };
+
+  return { canInstall: canInstall && !isInstalled, install, dismiss, isInstalled };
 }

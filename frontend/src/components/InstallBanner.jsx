@@ -1,12 +1,10 @@
-import { useState } from "react";
 import { Download, X } from "lucide-react";
 import { useInstallPrompt } from "../hooks/useInstallPrompt";
 
 export default function InstallBanner() {
-  const { canInstall, install } = useInstallPrompt();
-  const [dismissed, setDismissed] = useState(false);
+  const { canInstall, install, dismiss } = useInstallPrompt();
 
-  if (!canInstall || dismissed) return null;
+  if (!canInstall) return null;
 
   return (
     <div className="fixed bottom-20 lg:bottom-4 left-4 right-4 z-50 max-w-sm mx-auto">
@@ -24,7 +22,7 @@ export default function InstallBanner() {
           Install
         </button>
         <button
-          onClick={() => setDismissed(true)}
+          onClick={dismiss}
           className="flex-shrink-0 text-zinc-300 hover:text-zinc-500 transition"
         >
           <X size={16} />
