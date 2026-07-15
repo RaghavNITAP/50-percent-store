@@ -4,6 +4,7 @@ import { useAuthStore } from "../store/authStore";
 
 export default function Navbar() {
   const user = useAuthStore((s) => s.user);
+  const unreadCount = useAuthStore((s) => s.unreadCount);
   const { pathname } = useLocation();
 
   const isActive = (path) => pathname === path;
@@ -29,7 +30,14 @@ export default function Navbar() {
           {user ? (
             <>
               <Link to="/" className={iconClass("/")}><Home size={20} /></Link>
-              <Link to="/chat" className={iconClass("/chat")}><MessageCircle size={20} /></Link>
+              <Link to="/chat" className={`relative ${iconClass("/chat")}`}>
+                <MessageCircle size={20} />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold leading-none">
+                    {unreadCount > 9 ? "9+" : unreadCount}
+                  </span>
+                )}
+              </Link>
               <Link to="/profile" className={iconClass("/profile")}><User size={20} /></Link>
               {user.role !== "buyer" && (
                 <Link
