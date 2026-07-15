@@ -37,6 +37,13 @@ export default function ChatPage() {
         const conv = res.data.find((c) => c.id === conversationId);
         setConversation(conv);
       });
+
+    // On exit: mark any WS-received messages as read, then update badge
+    return () => {
+      chatApi.getMessages(conversationId, { page: 1, page_size: 1 })
+        .then(() => fetchUnreadCount())
+        .catch(() => {});
+    };
   }, [conversationId]);
 
   // WebSocket
