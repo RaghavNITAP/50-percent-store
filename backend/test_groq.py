@@ -14,7 +14,7 @@ async def test():
                 "Content-Type": "application/json"
             },
             json={
-                "model": "openai/gpt-oss-120b",
+                "model": "qwen/qwen3-27b",
                 "messages": [{"role": "user", "content": "Nike shoes under 5000"}],
                 "max_tokens": 300
             },
