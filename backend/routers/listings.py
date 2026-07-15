@@ -65,15 +65,16 @@ async def ai_polish(
                 json={
                     "model": "openai/gpt-oss-120b",
                     "messages": [
-                        {"role": "system", "content": POLISH_SYSTEM_PROMPT},
-                        {"role": "user", "content": user_prompt},
+                        {"role": "user", "content": f"{POLISH_SYSTEM_PROMPT}\n\n{user_prompt}"},
                     ],
                     "max_tokens": 150,
                     "temperature": 0.1,
                 },
             )
             resp.raise_for_status()
-            result = resp.json()["choices"][0]["message"]["content"].strip()
+            raw = resp.json()
+            print(f"[ai-polish raw] {raw}")
+            result = raw["choices"][0]["message"]["content"].strip()
             return {"text": result}
     except Exception as e:
         print(f"[ai-polish error] {e}")
