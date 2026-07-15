@@ -33,9 +33,7 @@ export default function Navbar() {
               <Link to="/chat" className={`relative ${iconClass("/chat")}`}>
                 <MessageCircle size={20} />
                 {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold leading-none">
-                    {unreadCount > 9 ? "9+" : unreadCount}
-                  </span>
+                  <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full" />
                 )}
               </Link>
               <Link to="/profile" className={iconClass("/profile")}><User size={20} /></Link>

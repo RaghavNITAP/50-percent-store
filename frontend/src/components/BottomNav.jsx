@@ -88,9 +88,7 @@ export default function BottomNav() {
           <div className="relative">
             <MessageCircle size={22} strokeWidth={active("/chat") ? 2.5 : 1.8} />
             {unreadCount > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 bg-red-500 rounded-full text-[9px] text-white font-bold flex items-center justify-center px-0.5">
-                {unreadCount > 9 ? "9+" : unreadCount}
-              </span>
+              <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full" />
             )}
           </div>
           <span className="text-[10px] font-medium">Messages</span>
