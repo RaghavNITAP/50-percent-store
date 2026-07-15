@@ -28,6 +28,19 @@ class ListingCondition(str, enum.Enum):
     poor = "poor"
 
 
+class ConditionPreference(str, enum.Enum):
+    new = "new"
+    good = "good"
+    fair = "fair"
+    any = "any"
+
+
+class RequestStatus(str, enum.Enum):
+    open = "open"
+    fulfilled = "fulfilled"
+    closed = "closed"
+
+
 class ListingStatus(str, enum.Enum):
     active = "active"
     sold = "sold"
@@ -319,3 +332,38 @@ class PincodeCache(Base):
     bounding_radius_km = Column(Float, nullable=True)
     is_valid = Column(Boolean, default=True, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
+# ─── Listing Requests ─────────────────────────────────────────────────────────
+
+class ListingRequest(Base):
+    __tablename__ = "listing_requests"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    requester_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    category_id = Column(UUID(as_uuid=True), ForeignKey("categories.id"), nullable=True)
+
+    title = Column(String(200), nullable=False)
+    description = Column(Text, nullable=True)
+    min_budget = Column(Float, nullable=True)
+    max_budget = Column(Float, nullable=True)
+    condition_preference = Column(Enum(ConditionPreference), default=ConditionPreference.any)
+
+    # Location
+    pincode = Column(String(10), nullable=True)
+    latitude = Column(Float, nullable=True)
+    longitude = Column(Float, nullable=True)
+    radius_km = Column(Float, default=10.0)
+
+    status = Column(Enum(RequestStatus), default=RequestStatus.open)
+    expires_at = Column(DateTime(timezone=True), nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+    requester = relationship("User", foreign_keys=[requester_id])
+    category = relationship("Category")
+
+    __table_args__ = (
+        Index("ix_requests_status", "status"),
+        Index("ix_requests_location", "latitude", "longitude"),
+    )

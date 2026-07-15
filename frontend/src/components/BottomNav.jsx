@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Home, MessageCircle, Plus, User, LogIn } from "lucide-react";
+import { Home, MessageCircle, Plus, User, LogIn, ClipboardList } from "lucide-react";
 import { useAuthStore } from "../store/authStore";
 
 const HIDDEN_PATHS = [
@@ -82,6 +82,11 @@ export default function BottomNav() {
         <Link to="/" className={tab("/")}>
           <Home size={22} strokeWidth={active("/") ? 2.5 : 1.8} />
           <span className="text-[10px] font-medium">Home</span>
+        </Link>
+
+        <Link to="/requests" className={tab("/requests")}>
+          <ClipboardList size={22} strokeWidth={active("/requests") ? 2.5 : 1.8} />
+          <span className="text-[10px] font-medium">Requests</span>
         </Link>
 
         <Link to="/chat" className={tab("/chat")}>

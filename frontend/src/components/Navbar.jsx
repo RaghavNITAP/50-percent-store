@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Plus, MessageCircle, User, Home } from "lucide-react";
+import { Plus, MessageCircle, User, Home, ClipboardList } from "lucide-react";
 import { useAuthStore } from "../store/authStore";
 
 export default function Navbar() {
@@ -30,6 +30,7 @@ export default function Navbar() {
           {user ? (
             <>
               <Link to="/" className={iconClass("/")}><Home size={20} /></Link>
+              <Link to="/requests" className={iconClass("/requests")}><ClipboardList size={20} /></Link>
               <Link to="/chat" className={`relative ${iconClass("/chat")}`}>
                 <MessageCircle size={20} />
                 {unreadCount > 0 && (

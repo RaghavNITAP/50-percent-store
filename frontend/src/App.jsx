@@ -18,6 +18,9 @@ import ReviewPage from "./pages/ReviewPage";
 import ProfilePage from "./pages/ProfilePage";
 import EditListingPage from "./pages/EditListingPage";
 import GoogleCallbackPage from "./pages/GoogleCallbackPage";
+import RequestFeedPage from "./pages/RequestFeedPage";
+import CreateRequestPage from "./pages/CreateRequestPage";
+import RequestDetailPage from "./pages/RequestDetailPage";
 
 function PrivateRoute({ children }) {
   const token = localStorage.getItem("access_token");
@@ -55,6 +58,9 @@ export default function App() {
         <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
         <Route path="/listing/:id/edit" element={<PrivateRoute><EditListingPage /></PrivateRoute>} />
         <Route path="/google-callback" element={<GoogleCallbackPage />} />
+        <Route path="/requests" element={<RequestFeedPage />} />
+        <Route path="/requests/new" element={<PrivateRoute><CreateRequestPage /></PrivateRoute>} />
+        <Route path="/requests/:id" element={<RequestDetailPage />} />
       </Routes>
       <BottomNav />
       <InstallBanner />

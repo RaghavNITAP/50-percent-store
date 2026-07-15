@@ -6,7 +6,7 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
-from routers import auth, listings, feed, search, chat, payments, reviews, locations
+from routers import auth, listings, feed, search, chat, payments, reviews, locations, requests
 from migrate import run_migrations
 import seed_categories
 import os
@@ -56,6 +56,7 @@ app.include_router(chat.router)
 app.include_router(payments.router)
 app.include_router(reviews.router)
 app.include_router(locations.router)
+app.include_router(requests.router)
 
 
 @app.get("/")

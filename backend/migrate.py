@@ -33,6 +33,31 @@ MIGRATIONS = [
         created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
     )
     """,
+
+    # Create listing_requests table
+    """
+    CREATE TABLE IF NOT EXISTS listing_requests (
+        id                   UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        requester_id         UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        category_id          UUID REFERENCES categories(id),
+        title                VARCHAR(200) NOT NULL,
+        description          TEXT,
+        min_budget           FLOAT,
+        max_budget           FLOAT,
+        condition_preference VARCHAR(10) NOT NULL DEFAULT 'any',
+        pincode              VARCHAR(10),
+        latitude             FLOAT,
+        longitude            FLOAT,
+        radius_km            FLOAT NOT NULL DEFAULT 10.0,
+        status               VARCHAR(20) NOT NULL DEFAULT 'open',
+        expires_at           TIMESTAMPTZ NOT NULL,
+        created_at           TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        updated_at           TIMESTAMPTZ
+    )
+    """,
+
+    "CREATE INDEX IF NOT EXISTS ix_requests_status ON listing_requests(status)",
+    "CREATE INDEX IF NOT EXISTS ix_requests_location ON listing_requests(latitude, longitude)",
 ]
 
 
