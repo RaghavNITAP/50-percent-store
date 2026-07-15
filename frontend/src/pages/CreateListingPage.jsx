@@ -83,9 +83,14 @@ export default function CreateListingPage() {
       fd.append("title", form.title || "item");
       fd.append("condition", form.condition);
       const res = await listingsApi.aiPolish(fd);
-      set(field, res.data.text);
-      setAiDone(field);
-      toast.success(field === "description" ? "Description polished" : "Defects polished");
+      const polished = res.data.text?.trim();
+      if (!polished) {
+        toast.error("AI returned an empty response. Your original text was kept.");
+      } else {
+        set(field, polished);
+        setAiDone(field);
+        toast.success(field === "description" ? "Description polished" : "Defects polished");
+      }
     } catch (err) {
       toast.error(err.response?.data?.detail || "Polish failed — check backend terminal");
     } finally {
