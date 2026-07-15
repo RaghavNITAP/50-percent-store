@@ -50,6 +50,11 @@ export default function BottomNav() {
             <span className="text-[10px] font-medium">Home</span>
           </Link>
 
+          <Link to="/requests" className={tab("/requests")}>
+            <ClipboardList size={22} strokeWidth={active("/requests") ? 2.5 : 1.8} />
+            <span className="text-[10px] font-medium">Requests</span>
+          </Link>
+
           {/* Sign in CTA — prominent centre button */}
           <button
             onClick={() => navigate("/login")}

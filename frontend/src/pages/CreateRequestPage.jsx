@@ -32,7 +32,7 @@ export default function CreateRequestPage() {
   });
 
   useEffect(() => {
-    categoriesApi.list().then((r) => setCategories(r.data)).catch(() => {});
+    categoriesApi.getAll().then((r) => setCategories(r.data)).catch(() => {});
   }, []);
 
   const set = (field, val) => setForm((f) => ({ ...f, [field]: val }));

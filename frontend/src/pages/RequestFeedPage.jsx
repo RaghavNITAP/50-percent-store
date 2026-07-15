@@ -138,7 +138,7 @@ export default function RequestFeedPage() {
   }, [load]);
 
   useEffect(() => {
-    categoriesApi.list().then((r) => setCategories(r.data)).catch(() => {});
+    categoriesApi.getAll().then((r) => setCategories(r.data)).catch(() => {});
   }, []);
 
   return (
