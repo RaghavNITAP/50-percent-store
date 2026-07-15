@@ -46,7 +46,7 @@ async def parse_search_query(query: str) -> dict:
                 "Content-Type": "application/json",
             },
             json={
-                "model": "openai/gpt-oss-120b",
+                "model": "qwen/qwen3-27b",
                 "messages": [
                     {"role": "system", "content": SEARCH_PROMPT},
                     {"role": "user", "content": query},

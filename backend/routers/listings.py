@@ -57,28 +57,37 @@ async def ai_polish(
             f"Rewrite as a clean 1-2 sentence defect description."
         )
 
-    try:
-        async with httpx.AsyncClient(timeout=15.0) as client:
-            resp = await client.post(
-                GROQ_URL,
-                headers={"Authorization": f"Bearer {GROQ_API_KEY}"},
-                json={
-                    "model": "openai/gpt-oss-120b",
-                    "messages": [
-                        {"role": "user", "content": f"{POLISH_SYSTEM_PROMPT}\n\n{user_prompt}"},
-                    ],
-                    "max_tokens": 150,
-                    "temperature": 0.1,
-                },
-            )
-            resp.raise_for_status()
-            raw = resp.json()
-            print(f"[ai-polish raw] {raw}")
-            result = raw["choices"][0]["message"]["content"].strip()
-            return {"text": result}
-    except Exception as e:
-        print(f"[ai-polish error] {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+    # Primary: qwen3-27b (permanent replacement after Aug 16)
+    # Fallback: llama-3.3-70b-versatile (works until Aug 16)
+    POLISH_MODELS = ["qwen/qwen3-27b", "llama-3.3-70b-versatile"]
+
+    async with httpx.AsyncClient(timeout=15.0) as client:
+        for model in POLISH_MODELS:
+            try:
+                resp = await client.post(
+                    GROQ_URL,
+                    headers={"Authorization": f"Bearer {GROQ_API_KEY}"},
+                    json={
+                        "model": model,
+                        "messages": [
+                            {"role": "system", "content": POLISH_SYSTEM_PROMPT},
+                            {"role": "user", "content": user_prompt},
+                        ],
+                        "max_tokens": 150,
+                        "temperature": 0.1,
+                    },
+                )
+                resp.raise_for_status()
+                result = resp.json()["choices"][0]["message"]["content"].strip()
+                if result:
+                    print(f"[ai-polish] success with model={model}")
+                    return {"text": result}
+                print(f"[ai-polish] empty response from model={model}, trying fallback")
+            except Exception as e:
+                print(f"[ai-polish] model={model} failed: {e}, trying fallback")
+
+    raise HTTPException(status_code=500, detail="AI polish failed on all models. Please try again.")
+
 
 # ─── Get all categories ───────────────────────────────────────────────────────
 
