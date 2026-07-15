@@ -87,12 +87,10 @@ export default function ChatListPage() {
                     </p>
                   </div>
 
-                  {/* Unread + arrow */}
+                  {/* Unread dot + arrow */}
                   <div className="flex items-center gap-2 flex-shrink-0">
                     {conv.unread_count > 0 && (
-                      <span className="bg-blue-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-medium">
-                        {conv.unread_count}
-                      </span>
+                      <span className="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0" />
                     )}
                     <ChevronRight size={16} className="text-gray-300 group-hover:text-gray-500 transition" />
                   </div>

@@ -21,6 +21,7 @@ export default function ChatPage() {
   const [loading, setLoading] = useState(true);
   const wsRef = useRef(null);
   const bottomRef = useRef(null);
+  const markReadTimer = useRef(null);
 
   // Load messages + reset unread badge
   useEffect(() => {
@@ -68,6 +69,13 @@ const ws = new WebSocket(`${WS_URL}/chat/ws/${conversationId}?token=${token}`);
         created_at: msg.created_at,
         _sender_name: msg.sender_name,
       }]);
+      // Debounced mark-as-read: fires once after 1s of no new messages
+      if (msg.sender_id !== user?.id?.toString()) {
+        clearTimeout(markReadTimer.current);
+        markReadTimer.current = setTimeout(() => {
+          chatApi.getMessages(conversationId, { page: 1, page_size: 1 }).catch(() => {});
+        }, 1000);
+      }
     };
 
 // ws.onerror = () => {};  // silence false errors
