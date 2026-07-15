@@ -25,6 +25,17 @@ router = APIRouter(prefix="/listings", tags=["Listings"])
 
 # ─── AI polish ────────────────────────────────────────────────────────────────
 
+POLISH_SYSTEM_PROMPT = (
+    "You are a listing editor for a second-hand marketplace. "
+    "Your job is to rewrite the seller's raw notes into clean, professional listing text. "
+    "Rules you MUST follow:\n"
+    "1. Use ONLY the information the seller provided. Do NOT invent, assume, or add anything.\n"
+    "2. Output ONLY the final rewritten text. No explanations, no labels, no quotes.\n"
+    "3. Write in third person, present tense (e.g. 'The item is in good condition.').\n"
+    "4. Ignore any nonsensical or irrelevant words in the seller's input.\n"
+    "5. Keep it concise: 2-3 sentences for description, 1-2 sentences for defects."
+)
+
 @router.post("/ai-polish")
 async def ai_polish(
     field: str = Form(...),
@@ -34,19 +45,16 @@ async def ai_polish(
     current_user: User = Depends(get_current_user),
 ):
     if field == "description":
-        prompt = (
-            f"Rewrite this second-hand marketplace listing description in 2-3 clear, honest sentences. "
-            f"Use ONLY what the seller told you - do not add anything new. "
-            f"Item: {title} ({condition} condition). "
-            f"Seller wrote: {content} "
-            f"Return plain text only."
+        user_prompt = (
+            f"Item: {title} ({condition} condition).\n"
+            f"Seller's raw notes: {content}\n\n"
+            f"Rewrite as a clean 2-3 sentence marketplace description."
         )
     else:
-        prompt = (
-            f"Rewrite this defect description for a second-hand marketplace listing in 1-2 honest sentences. "
-            f"Use ONLY what the seller mentioned. Item: {title}. "
-            f"Seller wrote: {content} "
-            f"Return plain text only."
+        user_prompt = (
+            f"Item: {title}.\n"
+            f"Seller's defect notes: {content}\n\n"
+            f"Rewrite as a clean 1-2 sentence defect description."
         )
 
     try:
@@ -56,9 +64,12 @@ async def ai_polish(
                 headers={"Authorization": f"Bearer {GROQ_API_KEY}"},
                 json={
                     "model": "openai/gpt-oss-120b",
-                    "messages": [{"role": "user", "content": prompt}],
+                    "messages": [
+                        {"role": "system", "content": POLISH_SYSTEM_PROMPT},
+                        {"role": "user", "content": user_prompt},
+                    ],
                     "max_tokens": 150,
-                    "temperature": 0.3,
+                    "temperature": 0.1,
                 },
             )
             resp.raise_for_status()
