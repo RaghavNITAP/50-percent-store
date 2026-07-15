@@ -1,9 +1,12 @@
 import { useState, useEffect, useRef } from "react";
 
+const DISMISS_KEY = "pwa_banner_dismissed_at";
+const COOLDOWN_DAYS = 7;
+
 export function useInstallPrompt() {
   const [canInstall, setCanInstall] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
-  const promptRef = useRef(null); // useRef keeps the event stable across renders
+  const promptRef = useRef(null);
 
   useEffect(() => {
     // Already installed as PWA
@@ -12,8 +15,15 @@ export function useInstallPrompt() {
       return;
     }
 
+    // Check if dismissed recently
+    const dismissedAt = localStorage.getItem(DISMISS_KEY);
+    if (dismissedAt) {
+      const daysSince = (Date.now() - Number(dismissedAt)) / (1000 * 60 * 60 * 24);
+      if (daysSince < COOLDOWN_DAYS) return; // still in cooldown, don't show
+    }
+
     const handler = (e) => {
-      e.preventDefault(); // Suppress native mini-infobar
+      e.preventDefault();
       promptRef.current = e;
       setCanInstall(true);
     };
@@ -42,9 +52,9 @@ export function useInstallPrompt() {
     setCanInstall(false);
   };
 
-  // Call this when user dismisses the banner without installing
   const dismiss = () => {
-    promptRef.current = null; // Release the event — stops Chrome warning
+    localStorage.setItem(DISMISS_KEY, Date.now().toString()); // remember dismissal
+    promptRef.current = null;
     setCanInstall(false);
   };
 
