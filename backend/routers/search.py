@@ -46,7 +46,7 @@ async def parse_search_query(query: str) -> dict:
                 "Content-Type": "application/json",
             },
             json={
-                "model": "llama-3.3-70b-versatile",
+                "model": "openai/gpt-oss-120b",
                 "messages": [
                     {"role": "system", "content": SEARCH_PROMPT},
                     {"role": "user", "content": query},
