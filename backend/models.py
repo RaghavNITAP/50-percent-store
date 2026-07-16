@@ -347,7 +347,7 @@ class ListingRequest(Base):
     description = Column(Text, nullable=True)
     min_budget = Column(Float, nullable=True)
     max_budget = Column(Float, nullable=True)
-    condition_preference = Column(Enum(ConditionPreference), default=ConditionPreference.any)
+    condition_preference = Column(String(20), default="any")  # any/new/good/fair
 
     # Location
     pincode = Column(String(10), nullable=True)
@@ -355,7 +355,7 @@ class ListingRequest(Base):
     longitude = Column(Float, nullable=True)
     radius_km = Column(Float, default=10.0)
 
-    status = Column(Enum(RequestStatus), default=RequestStatus.open)
+    status = Column(String(20), default="open")  # open/fulfilled/closed
     expires_at = Column(DateTime(timezone=True), nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())

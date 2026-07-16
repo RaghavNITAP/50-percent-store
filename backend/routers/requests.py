@@ -136,7 +136,7 @@ async def get_request_feed(
 ):
     now = datetime.now(timezone.utc)
     filters = [
-        ListingRequest.status == RequestStatus.open,
+        ListingRequest.status == "open",
         ListingRequest.expires_at > now,
     ]
 
@@ -266,7 +266,7 @@ async def fulfill_request(
     if req.requester_id != current_user.id:
         raise HTTPException(status_code=403, detail="Only the requester can mark this as fulfilled")
 
-    req.status = RequestStatus.fulfilled
+    req.status = "fulfilled"
     await db.commit()
     await db.refresh(req)
     result = await db.execute(request_query().where(ListingRequest.id == req.id))
@@ -289,7 +289,7 @@ async def renew_request(
         raise HTTPException(status_code=403, detail="Not your request")
 
     req.expires_at = datetime.now(timezone.utc) + timedelta(days=REQUEST_TTL_DAYS)
-    req.status = RequestStatus.open
+    req.status = "open"
     await db.commit()
     await db.refresh(req)
     result = await db.execute(request_query().where(ListingRequest.id == req.id))
@@ -311,5 +311,5 @@ async def close_request(
     if req.requester_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not your request")
 
-    req.status = RequestStatus.closed
+    req.status = "closed"
     await db.commit()

@@ -52,10 +52,10 @@ class RequestOut(BaseModel):
     category: Optional[CategoryOut] = None
     min_budget: Optional[float] = None
     max_budget: Optional[float] = None
-    condition_preference: ConditionPreference
+    condition_preference: str
     pincode: Optional[str] = None
     radius_km: float
-    status: RequestStatus
+    status: str
     expires_at: datetime
     created_at: datetime
     requester: RequesterOut
