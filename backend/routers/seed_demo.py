@@ -20,7 +20,7 @@ from sqlalchemy import select
 from database import get_db
 from models import (
     User, SellerProfile, Listing, ListingImage,
-    ListingCondition, ListingStatus, UserRole, Category,
+    ListingCondition, ListingStatus, UserRole, Category, ListingRequest,
 )
 from core.security import hash_password
 
@@ -189,6 +189,59 @@ SLUG_MAP = {
     "toys":        None,
 }
 
+# ── Requests per seller ───────────────────────────────────────────────────────
+# (title, description, category_slug, min_budget, max_budget, condition_preference)
+REQUESTS_BY_SELLER = [
+    # Rahul — Delhi
+    [
+        ("Looking for a good DSLR camera", "Need a beginner-friendly DSLR for weekend photography. Nikon or Canon preferred.", "electronics", 15000, 30000, "good"),
+        ("iPad or Android tablet needed", "Want a tab for reading and light video calls. Any decent 10 inch tab will do.", "electronics", 8000, 20000, "good"),
+        ("Acoustic guitar wanted", "Learning guitar, need a basic acoustic. Any brand is fine as long as tuning pegs work.", None, 2000, 6000, "any"),
+        ("Office ergonomic chair", "Back pain from WFH. Need a proper lumbar support chair. Please no cheap plastic ones.", "furniture", 3000, 9000, "good"),
+        ("Running shoes size UK9", "Nike, Adidas or Puma. Just need them in good condition for morning runs.", "clothing", 1500, 4500, "good"),
+    ],
+    # Priya — Mumbai
+    [
+        ("MacBook Air M1 or M2", "Freelance graphic designer. Need a Mac urgently. Any storage is fine.", "electronics", 50000, 80000, "good"),
+        ("Formal blazer size M or L", "Have an interview next week. Any colour except black.", "clothing", 1000, 4000, "good"),
+        ("Harry Potter or fantasy novel set", "Looking for a good fantasy series. Harry Potter, LOTR, anything works.", "books", 200, 2500, "any"),
+        ("Mini fridge for hostel room", "Single door, around 50-80 litres. Shifting to a new place ASAP.", "furniture", 3000, 8000, "fair"),
+        ("Wireless Bluetooth earphones", "For gym use. Sweat resistant is a must. Budget is strict at 2500.", "electronics", 800, 2500, "any"),
+    ],
+    # Arjun — Bangalore
+    [
+        ("PS4 or PS5 gaming console", "Prefer PS5 but will take PS4 with a few games. Serious buyer, quick deal.", "electronics", 15000, 45000, "good"),
+        ("Road bike or MTB cycle", "For daily commute and weekend trails. 26 or 27.5 inch geared preferred.", "sports", 6000, 18000, "good"),
+        ("Study table with drawer", "Moving into a new flat. Need a simple wooden table, nothing fancy.", "furniture", 2000, 6000, "any"),
+        ("Cricket pads and gloves", "Playing for a corporate team. Need full protection gear. Size Large.", "sports", 800, 3000, "good"),
+        ("Programming or tech books", "Clean Code, System Design Interview, DDIA or similar tech books.", "books", 150, 1200, "good"),
+    ],
+    # Meera — Chennai
+    [
+        ("Sewing machine basic model", "Learning tailoring as a hobby. Any functional sewing machine will do.", None, 2000, 7000, "any"),
+        ("Sony or Bose wireless headphones", "WFH and need good sound isolation. Budget flexible for the right piece.", "electronics", 8000, 20000, "good"),
+        ("Kids bicycle age 8-10 years", "For my son. 20 inch wheel size. With or without training wheels.", "sports", 1500, 5000, "good"),
+        ("Tall wooden bookshelf", "At least 5 shelves. Prefer solid wood. Can self-pickup anywhere in Chennai.", "furniture", 2000, 7000, "good"),
+        ("JEE or NEET prep books", "Need MTG or Cengage series. Physics and Chemistry mainly.", "books", 400, 2500, "good"),
+    ],
+    # Vikash — Hyderabad
+    [
+        ("Drone for beginner photography", "DJI Mini or similar under 30k. Want to learn aerial photography.", "electronics", 8000, 28000, "good"),
+        ("Board games collection", "Looking to buy 3-4 together. Catan, Carcassonne, Ticket to Ride etc.", "toys", 1500, 6000, "good"),
+        ("Dumbbells set for home gym", "Adjustable or fixed 5kg to 20kg range. Building a home setup.", "sports", 2000, 8000, "good"),
+        ("Old Android phone for backup", "Any working Android for calls and WhatsApp. Doesn't need to be fancy.", "electronics", 1000, 4000, "fair"),
+        ("Dining table 4-seater", "Shifting to new flat. Wooden or marble top, 4 chairs ideally included.", "furniture", 5000, 18000, "good"),
+    ],
+    # Ananya — Pune
+    [
+        ("External monitor 24 or 27 inch", "Working from home, need IPS monitor for MacBook. 1080p minimum.", "electronics", 5000, 15000, "good"),
+        ("Vintage oversized denim jacket", "Size L or XL. 90s or Y2K aesthetic preferred. Any colour.", "clothing", 500, 2500, "any"),
+        ("Air purifier for 200 sq ft room", "Have dust allergy. Philips or Mi preferred. Urgent need.", "electronics", 4000, 12000, "good"),
+        ("Telescope for stargazing", "Amateur astronomy hobbyist. Refractor or reflector, any brand.", None, 3000, 12000, "good"),
+        ("Baking or cuisine cookbooks", "Starting to cook seriously. Any good baking or international cuisine books.", "books", 100, 1000, "any"),
+    ],
+]
+
 
 async def get_or_create_category(db: AsyncSession, name: str, slug: str, icon: str) -> uuid.UUID:
     res = await db.execute(select(Category).where(Category.slug == slug))
@@ -308,6 +361,47 @@ async def seed_demo(
             )
             db.add(image)
             created_listings += 1
+    await db.flush()
+
+    # ── Seed requests ──────────────────────────────────────────────────────────
+    created_requests = 0
+    user_list = []
+    for seller_data in SELLERS:
+        res = await db.execute(select(User).where(User.email == seller_data["email"]))
+        u = res.scalar_one_or_none()
+        if u:
+            user_list.append((u, seller_data))
+
+    for (user, seller_data), user_requests in zip(user_list, REQUESTS_BY_SELLER):
+        for (title, desc, cat_slug, min_b, max_b, cond_pref) in user_requests:
+            existing = await db.execute(
+                select(ListingRequest).where(
+                    ListingRequest.requester_id == user.id,
+                    ListingRequest.title == title,
+                )
+            )
+            if existing.scalar_one_or_none():
+                continue
+
+            req = ListingRequest(
+                id=uuid.uuid4(),
+                requester_id=user.id,
+                category_id=cat_ids.get(cat_slug) if cat_slug else None,
+                title=title,
+                description=desc,
+                min_budget=float(min_b) if min_b else None,
+                max_budget=float(max_b) if max_b else None,
+                condition_preference=cond_pref,
+                pincode=seller_data["pincode"],
+                latitude=seller_data["lat"] + random.uniform(-0.03, 0.03),
+                longitude=seller_data["lon"] + random.uniform(-0.03, 0.03),
+                radius_km=10.0,
+                status="open",
+                expires_at=datetime.now(timezone.utc) + timedelta(days=random.randint(3, 14)),
+                created_at=datetime.now(timezone.utc) - timedelta(hours=random.randint(1, 72)),
+            )
+            db.add(req)
+            created_requests += 1
 
     await db.commit()
 
@@ -315,6 +409,7 @@ async def seed_demo(
         "status": "✅ Demo data seeded",
         "users_created": created_users,
         "listings_created": created_listings,
+        "requests_created": created_requests,
         "note": "All demo accounts have password: Demo@12345",
         "cities": ["Delhi", "Mumbai", "Bangalore", "Chennai", "Hyderabad", "Pune"],
     }
