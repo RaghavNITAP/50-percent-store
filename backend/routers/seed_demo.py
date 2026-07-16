@@ -260,156 +260,153 @@ async def seed_demo(
     db: AsyncSession = Depends(get_db),
 ):
     if secret != SEED_SECRET:
-        raise HTTPException(status_code=403, detail="Invalid seed secret — add ?secret=demo1234 to the URL")
+        raise HTTPException(status_code=403, detail="Invalid secret — add ?secret=demo1234")
 
-    # ── Ensure categories exist ────────────────────────────────────────────────
-    cat_ids = {
-        "electronics": await get_or_create_category(db, "Electronics",  "electronics", "💻"),
-        "clothing":    await get_or_create_category(db, "Clothing",      "clothing",    "👕"),
-        "sports":      await get_or_create_category(db, "Sports",        "sports",      "🏏"),
-        "books":       await get_or_create_category(db, "Books",         "books",       "📚"),
-        "furniture":   await get_or_create_category(db, "Furniture",     "furniture",   "🛋️"),
-        "toys":        await get_or_create_category(db, "Toys & Games",  "toys",        "🎮"),
-    }
-    await db.flush()
+    import traceback as tb
+    try:
+        # ── Categories ─────────────────────────────────────────────────────────
+        cat_ids = {
+            "electronics": await get_or_create_category(db, "Electronics", "electronics", "💻"),
+            "clothing":    await get_or_create_category(db, "Clothing",    "clothing",    "👕"),
+            "sports":      await get_or_create_category(db, "Sports",      "sports",      "🏏"),
+            "books":       await get_or_create_category(db, "Books",       "books",       "📚"),
+            "furniture":   await get_or_create_category(db, "Furniture",   "furniture",   "🛋️"),
+            "toys":        await get_or_create_category(db, "Toys & Games","toys",        "🎮"),
+        }
+        await db.flush()
 
-    created_users    = 0
-    created_listings = 0
+        created_users = created_listings = 0
 
-    for seller_data, seller_listings in zip(SELLERS, LISTINGS_BY_SELLER):
-        # ── Skip if user already exists ────────────────────────────────────────
-        res = await db.execute(select(User).where(User.email == seller_data["email"]))
-        user = res.scalar_one_or_none()
+        # ── Sellers + Listings ─────────────────────────────────────────────────
+        for seller_data, seller_listings in zip(SELLERS, LISTINGS_BY_SELLER):
+            res = await db.execute(select(User).where(User.email == seller_data["email"]))
+            user = res.scalar_one_or_none()
 
-        if not user:
-            user = User(
-                id=uuid.uuid4(),
-                email=seller_data["email"],
-                hashed_password=hash_password("Demo@12345"),
-                full_name=seller_data["full_name"],
-                role=UserRole.both,
-                city=seller_data["city"],
-                locality=seller_data["locality"],
-                pincode=seller_data["pincode"],
-                latitude=seller_data["lat"],
-                longitude=seller_data["lon"],
-                availability_radius_km=10.0,
-                trust_score=seller_data["trust_score"],
-                is_active=True,
-                is_verified=True,
-            )
-            db.add(user)
-            await db.flush()
-
-            profile = SellerProfile(
-                id=uuid.uuid4(),
-                user_id=user.id,
-                bio=f"Hi! I'm {seller_data['full_name']} from {seller_data['locality']}, {seller_data['city']}. Selling quality items at fair prices.",
-                avg_rating=round(random.uniform(3.8, 4.9), 1),
-                total_ratings=random.randint(5, 40),
-                total_sales=random.randint(3, 25),
-            )
-            db.add(profile)
-            await db.flush()
-            created_users += 1
-
-        # ── Create listings ────────────────────────────────────────────────────
-        for (title, cat_slug, condition, resell, original, nego, img_seed, desc) in seller_listings:
-            # Check if listing already exists for this seller with this title
-            existing = await db.execute(
-                select(Listing).where(
-                    Listing.seller_id == user.id,
-                    Listing.title == title,
+            if not user:
+                user = User(
+                    id=uuid.uuid4(),
+                    email=seller_data["email"],
+                    hashed_password=hash_password("Demo@12345"),
+                    full_name=seller_data["full_name"],
+                    role=UserRole.both,
+                    city=seller_data["city"],
+                    locality=seller_data["locality"],
+                    pincode=seller_data["pincode"],
+                    latitude=seller_data["lat"],
+                    longitude=seller_data["lon"],
+                    availability_radius_km=10.0,
+                    trust_score=seller_data["trust_score"],
+                    is_active=True,
+                    is_verified=True,
                 )
-            )
-            if existing.scalar_one_or_none():
-                continue
+                db.add(user)
+                await db.flush()
 
-            # Add a small random offset to coordinates so listings aren't stacked
-            lat_offset = random.uniform(-0.02, 0.02)
-            lon_offset = random.uniform(-0.02, 0.02)
-
-            listing = Listing(
-                id=uuid.uuid4(),
-                seller_id=user.id,
-                category_id=cat_ids.get(cat_slug),
-                title=title,
-                description=desc,
-                condition=ListingCondition(condition),
-                original_price=float(original),
-                reselling_price=float(resell),
-                is_negotiable=nego,
-                status=ListingStatus.active,
-                pickup_latitude=seller_data["lat"] + lat_offset,
-                pickup_longitude=seller_data["lon"] + lon_offset,
-                pickup_radius_km=5.0,
-                pincode=seller_data["pincode"],
-                pickup_address=f"{seller_data['locality']}, {seller_data['city']}",
-                created_at=datetime.now(timezone.utc) - timedelta(hours=random.randint(1, 240)),
-            )
-            db.add(listing)
-            await db.flush()
-
-            # Primary image
-            image = ListingImage(
-                id=uuid.uuid4(),
-                listing_id=listing.id,
-                cloudinary_url=img(img_seed),
-                cloudinary_public_id=f"demo/{img_seed}",
-                is_primary=True,
-                display_order=0,
-            )
-            db.add(image)
-            created_listings += 1
-    await db.flush()
-
-    # ── Seed requests ──────────────────────────────────────────────────────────
-    created_requests = 0
-    user_list = []
-    for seller_data in SELLERS:
-        res = await db.execute(select(User).where(User.email == seller_data["email"]))
-        u = res.scalar_one_or_none()
-        if u:
-            user_list.append((u, seller_data))
-
-    for (user, seller_data), user_requests in zip(user_list, REQUESTS_BY_SELLER):
-        for (title, desc, cat_slug, min_b, max_b, cond_pref) in user_requests:
-            existing = await db.execute(
-                select(ListingRequest).where(
-                    ListingRequest.requester_id == user.id,
-                    ListingRequest.title == title,
+                profile = SellerProfile(
+                    id=uuid.uuid4(),
+                    user_id=user.id,
+                    bio=f"Hi! I'm {seller_data['full_name']} from {seller_data['locality']}, {seller_data['city']}.",
+                    avg_rating=round(random.uniform(3.8, 4.9), 1),
+                    total_ratings=random.randint(5, 40),
+                    total_sales=random.randint(3, 25),
                 )
-            )
-            if existing.scalar_one_or_none():
-                continue
+                db.add(profile)
+                await db.flush()
+                created_users += 1
 
-            req = ListingRequest(
-                id=uuid.uuid4(),
-                requester_id=user.id,
-                category_id=cat_ids.get(cat_slug) if cat_slug else None,
-                title=title,
-                description=desc,
-                min_budget=float(min_b) if min_b else None,
-                max_budget=float(max_b) if max_b else None,
-                condition_preference=cond_pref,
-                pincode=seller_data["pincode"],
-                latitude=seller_data["lat"] + random.uniform(-0.03, 0.03),
-                longitude=seller_data["lon"] + random.uniform(-0.03, 0.03),
-                radius_km=10.0,
-                status="open",
-                expires_at=datetime.now(timezone.utc) + timedelta(days=random.randint(3, 14)),
-                created_at=datetime.now(timezone.utc) - timedelta(hours=random.randint(1, 72)),
-            )
-            db.add(req)
-            created_requests += 1
+            for (title, cat_slug, condition, resell, original, nego, img_seed, desc) in seller_listings:
+                existing = await db.execute(
+                    select(Listing).where(Listing.seller_id == user.id, Listing.title == title)
+                )
+                if existing.scalar_one_or_none():
+                    continue
 
-    await db.commit()
+                listing = Listing(
+                    id=uuid.uuid4(),
+                    seller_id=user.id,
+                    category_id=cat_ids.get(cat_slug),
+                    title=title,
+                    description=desc,
+                    condition=ListingCondition(condition),
+                    original_price=float(original),
+                    reselling_price=float(resell),
+                    is_negotiable=nego,
+                    status=ListingStatus.active,
+                    pickup_latitude=seller_data["lat"] + random.uniform(-0.02, 0.02),
+                    pickup_longitude=seller_data["lon"] + random.uniform(-0.02, 0.02),
+                    pickup_radius_km=5.0,
+                    pincode=seller_data["pincode"],
+                    pickup_address=f"{seller_data['locality']}, {seller_data['city']}",
+                )
+                db.add(listing)
+                await db.flush()
 
-    return {
-        "status": "✅ Demo data seeded",
-        "users_created": created_users,
-        "listings_created": created_listings,
-        "requests_created": created_requests,
-        "note": "All demo accounts have password: Demo@12345",
-        "cities": ["Delhi", "Mumbai", "Bangalore", "Chennai", "Hyderabad", "Pune"],
-    }
+                db.add(ListingImage(
+                    id=uuid.uuid4(),
+                    listing_id=listing.id,
+                    cloudinary_url=img(img_seed),
+                    cloudinary_public_id=f"demo/{img_seed}",
+                    is_primary=True,
+                    display_order=0,
+                ))
+                created_listings += 1
+
+        await db.flush()
+
+        # ── Requests ───────────────────────────────────────────────────────────
+        created_requests = 0
+        user_list = []
+        for seller_data in SELLERS:
+            res = await db.execute(select(User).where(User.email == seller_data["email"]))
+            u = res.scalar_one_or_none()
+            if u:
+                user_list.append((u, seller_data))
+
+        for (user, seller_data), user_reqs in zip(user_list, REQUESTS_BY_SELLER):
+            for (title, desc, cat_slug, min_b, max_b, cond_pref) in user_reqs:
+                existing = await db.execute(
+                    select(ListingRequest).where(
+                        ListingRequest.requester_id == user.id,
+                        ListingRequest.title == title,
+                    )
+                )
+                if existing.scalar_one_or_none():
+                    continue
+
+                db.add(ListingRequest(
+                    id=uuid.uuid4(),
+                    requester_id=user.id,
+                    category_id=cat_ids.get(cat_slug) if cat_slug else None,
+                    title=title,
+                    description=desc,
+                    min_budget=float(min_b) if min_b else None,
+                    max_budget=float(max_b) if max_b else None,
+                    condition_preference=cond_pref,
+                    pincode=seller_data["pincode"],
+                    latitude=seller_data["lat"] + random.uniform(-0.03, 0.03),
+                    longitude=seller_data["lon"] + random.uniform(-0.03, 0.03),
+                    radius_km=10.0,
+                    status="open",
+                    expires_at=datetime.now(timezone.utc) + timedelta(days=random.randint(3, 14)),
+                ))
+                created_requests += 1
+
+        await db.commit()
+
+        return {
+            "status": "✅ Demo data seeded",
+            "users_created": created_users,
+            "listings_created": created_listings,
+            "requests_created": created_requests,
+            "note": "All demo accounts use password: Demo@12345",
+            "cities": ["Delhi", "Mumbai", "Bangalore", "Chennai", "Hyderabad", "Pune"],
+        }
+
+    except Exception as e:
+        await db.rollback()
+        return {
+            "status": "❌ Seed failed",
+            "error": str(e),
+            "detail": tb.format_exc(),
+        }
+
