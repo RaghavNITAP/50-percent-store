@@ -88,7 +88,15 @@ async def get_feed(
     elif sort_by == "price_desc":
         order = Listing.reselling_price.desc()
     elif sort_by == "nearest":
-        order = distance_expr.asc()
+        order = text(f"""
+            (6371.0 * acos(
+                LEAST(1.0,
+                    cos(radians({lat})) * cos(radians(pickup_latitude))
+                    * cos(radians(pickup_longitude) - radians({lon}))
+                    + sin(radians({lat})) * sin(radians(pickup_latitude))
+                )
+            )) ASC NULLS LAST
+        """)
     else:
         # Default: blend recency (80%) + seller trust score (20%)
         order = text(f"""
@@ -203,7 +211,15 @@ async def get_my_feed(
     elif sort_by == "price_desc":
         order = Listing.reselling_price.desc()
     elif sort_by == "nearest":
-        order = distance_expr.asc()
+        order = text(f"""
+            (6371.0 * acos(
+                LEAST(1.0,
+                    cos(radians({lat})) * cos(radians(pickup_latitude))
+                    * cos(radians(pickup_longitude) - radians({lon}))
+                    + sin(radians({lat})) * sin(radians(pickup_latitude))
+                )
+            )) ASC NULLS LAST
+        """)
     else:
         # Default: blend recency (80%) + seller trust score (20%)
         order = text(f"""

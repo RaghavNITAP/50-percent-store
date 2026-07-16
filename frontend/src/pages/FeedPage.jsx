@@ -103,7 +103,8 @@ export default function FeedPage() {
           setTotal(res.data.total);
         }
       } catch {
-        if (!cancelled) toast.error("Failed to load listings");
+        // Only show error if there's nothing to display — don't disrupt existing results
+        if (!cancelled && listings.length === 0) toast.error("Failed to load listings");
       } finally {
         if (!cancelled) setLoading(false);
       }
