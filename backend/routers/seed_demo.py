@@ -29,9 +29,81 @@ router = APIRouter(prefix="/dev", tags=["Dev"])
 SEED_SECRET = os.getenv("SEED_SECRET", "demo1234")
 
 # ── Image helper ───────────────────────────────────────────────────────────────
-# Picsum photos with named seeds — always returns the same image for the seed.
+# Curated Unsplash photos — each seed maps to a relevant, real product image.
+_U = "https://images.unsplash.com/photo-"
+PHOTO_MAP = {
+    # Electronics
+    "iphone-13":         _U + "1510557880182-3d4d3cba35a5?w=500&h=500&fit=crop",
+    "samsung-s22":       _U + "1511707171634-5f897ff02aa9?w=500&h=500&fit=crop",
+    "dell-laptop":       _U + "1496181133206-80ce9b88a853?w=500&h=500&fit=crop",
+    "headphones-sony":   _U + "1505740420928-5e560c06d30e?w=500&h=500&fit=crop",
+    "ipad-air":          _U + "1544244015-0df4b3ffc6b0?w=500&h=500&fit=crop",
+    "canon-camera":      _U + "1516035069371-29a1b244cc32?w=500&h=500&fit=crop",
+    "nintendo-switch":   _U + "1606144042614-b2417e99c4e3?w=500&h=500&fit=crop",
+    "apple-watch":       _U + "1523275335684-37898b6baf30?w=500&h=500&fit=crop",
+    "jbl-speaker":       _U + "1608043152269-423dbba4e7e1?w=500&h=500&fit=crop",
+    "kindle-ebook":      _U + "1553729459-efe14ef6a702?w=500&h=500&fit=crop",
+    "oneplus-10":        _U + "1511707171634-5f897ff02aa9?w=500&h=500&fit=crop",
+    "realme-gt":         _U + "1601784551446-9d9d42a67c3f?w=500&h=500&fit=crop",
+    "mi-band":           _U + "1523275335684-37898b6baf30?w=500&h=500&fit=crop",
+    "macbook-air-m1":    _U + "1517336714731-489689fd1ca8?w=500&h=500&fit=crop",
+    "earbuds-realme":    _U + "1590658268037-e5be4e1a5c2e?w=500&h=500&fit=crop",
+    "nikon-d3500":       _U + "1516035069371-29a1b244cc32?w=500&h=500&fit=crop",
+    "gopro-hero9":       _U + "1564466809960-768db8e6f95a?w=500&h=500&fit=crop",
+    "samsung-monitor":   _U + "1527443224154-c4a573d5f5af?w=500&h=500&fit=crop",
+    "mech-keyboard":     _U + "1587829741301-dc798b83add3?w=500&h=500&fit=crop",
+    "ps4-controller":    _U + "1606144042614-b2417e99c4e3?w=500&h=500&fit=crop",
+    "usb-hub-anker":     _U + "1587829741301-dc798b83add3?w=500&h=500&fit=crop",
+    "laptop-bag":        _U + "1553062407-98eeb64c6a62?w=500&h=500&fit=crop",
+    # Fashion
+    "levis-jeans":       _U + "1542272604-787c3835535d?w=500&h=500&fit=crop",
+    "nike-shoes":        _U + "1542291026-7eec264c27ff?w=500&h=500&fit=crop",
+    "adidas-hoodie":     _U + "1578662996442-48f60103fc96?w=500&h=500&fit=crop",
+    "summer-dress":      _U + "1515886657613-9f3515b0c78f?w=500&h=500&fit=crop",
+    "rayban-sunglasses": _U + "1572635196237-14b3f281503f?w=500&h=500&fit=crop",
+    "formal-blazer":     _U + "1593030761757-71fae45fa0e7?w=500&h=500&fit=crop",
+    "puma-shoes":        _U + "1542291026-7eec264c27ff?w=500&h=500&fit=crop",
+    "fossil-watch":      _U + "1523275335684-37898b6baf30?w=500&h=500&fit=crop",
+    "leather-wallet":    _U + "1591213954555-bcafc3e85f50?w=500&h=500&fit=crop",
+    "woodland-boots":    _U + "1542291026-7eec264c27ff?w=500&h=500&fit=crop",
+    "kurta-ethnic":      _U + "1583391099995-9f8d9a3ca7a8?w=500&h=500&fit=crop",
+    "formal-shirts":     _U + "1593030761757-71fae45fa0e7?w=500&h=500&fit=crop",
+    # Sports
+    "cricket-bat":       _U + "1531415074968-036ba1b575da?w=500&h=500&fit=crop",
+    "badminton-racket":  _U + "1554068865-1e7e0d46e7d7?w=500&h=500&fit=crop",
+    "hero-cycle":        _U + "1558618666-fcd25c85cd64?w=500&h=500&fit=crop",
+    "football-nike":     _U + "1574629810360-7efbbe195018?w=500&h=500&fit=crop",
+    "protein-powder":    _U + "1556909114-f6e7ad7d3136?w=500&h=500&fit=crop",
+    "chess-set":         _U + "1529699211952-734e80c4d42b?w=500&h=500&fit=crop",
+    "table-tennis":      _U + "1554068865-1e7e0d46e7d7?w=500&h=500&fit=crop",
+    "cricket-kit-full":  _U + "1531415074968-036ba1b575da?w=500&h=500&fit=crop",
+    "badminton-kit":     _U + "1554068865-1e7e0d46e7d7?w=500&h=500&fit=crop",
+    "skipping-rope":     _U + "1517838277-e9ba6dbb64b8?w=500&h=500&fit=crop",
+    # Books
+    "harry-potter-books": _U + "1497633762265-9d179a990aa6?w=500&h=500&fit=crop",
+    "ncert-books":        _U + "1516979187895-72e9f3e8f8bb?w=500&h=500&fit=crop",
+    "atomic-habits-book": _U + "1544716278-ca5e3f4abd8c?w=500&h=500&fit=crop",
+    "cat-prep-books":     _U + "1516979187895-72e9f3e8f8bb?w=500&h=500&fit=crop",
+    "rich-dad-book":      _U + "1544716278-ca5e3f4abd8c?w=500&h=500&fit=crop",
+    "alchemist-book":     _U + "1544716278-ca5e3f4abd8c?w=500&h=500&fit=crop",
+    # Furniture
+    "wooden-table":      _U + "1555041469-a586c61ea9bc?w=500&h=500&fit=crop",
+    "office-chair":      _U + "1586023492125-27b2c045efd7?w=500&h=500&fit=crop",
+    "bookshelf-metal":   _U + "1589829545856-d10d557cf95f?w=500&h=500&fit=crop",
+    "coffee-table-ikea": _U + "1555041469-a586c61ea9bc?w=500&h=500&fit=crop",
+    # Toys
+    "lego-millennium-falcon": _U + "1587654780291-39c9404d746b?w=500&h=500&fit=crop",
+    "hot-wheels-garage":      _U + "1587654780291-39c9404d746b?w=500&h=500&fit=crop",
+    "carrom-board":           _U + "1529699211952-734e80c4d42b?w=500&h=500&fit=crop",
+    "rc-monster-truck":       _U + "1587654780291-39c9404d746b?w=500&h=500&fit=crop",
+    "uno-cards":              _U + "1529699211952-734e80c4d42b?w=500&h=500&fit=crop",
+    "scrabble-game":          _U + "1529699211952-734e80c4d42b?w=500&h=500&fit=crop",
+}
+
 def img(seed: str) -> str:
-    return f"https://picsum.photos/seed/{seed}/500/500"
+    # Use curated photo if available, fallback to Picsum
+    return PHOTO_MAP.get(seed, f"https://picsum.photos/seed/{seed}/500/500")
+
 
 # ── Demo sellers ───────────────────────────────────────────────────────────────
 SELLERS = [
@@ -264,10 +336,12 @@ async def get_or_create_category(db: AsyncSession, name: str, slug: str, icon: s
 @router.get("/seed")
 async def seed_demo(
     secret: str = "",
+    reset_images: bool = False,
     db: AsyncSession = Depends(get_db),
 ):
     if secret != SEED_SECRET:
         raise HTTPException(status_code=403, detail="Invalid secret — add ?secret=demo1234")
+
 
     import traceback as tb
     try:
@@ -325,7 +399,22 @@ async def seed_demo(
                 existing = await db.execute(
                     select(Listing).where(Listing.seller_id == user.id, Listing.title == title)
                 )
-                if existing.scalar_one_or_none():
+                existing_listing = existing.scalar_one_or_none()
+                if existing_listing:
+                    # If reset_images, update the image URL to the new curated one
+                    if reset_images:
+                        from sqlalchemy import delete as sa_delete
+                        await db.execute(
+                            sa_delete(ListingImage).where(ListingImage.listing_id == existing_listing.id)
+                        )
+                        db.add(ListingImage(
+                            id=uuid.uuid4(),
+                            listing_id=existing_listing.id,
+                            cloudinary_url=img(img_seed),
+                            cloudinary_public_id=f"demo/{img_seed}",
+                            is_primary=True,
+                            display_order=0,
+                        ))
                     continue
 
                 listing = Listing(
