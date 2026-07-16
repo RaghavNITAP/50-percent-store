@@ -10,10 +10,65 @@ from database import get_db
 from models import ListingRequest, RequestStatus, PincodeCache, User
 from schemas.requests import RequestCreate, RequestUpdate, RequestOut, RequestList
 from core.dependencies import get_current_user
+import httpx
+import os
+
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
+POLISH_MODELS = ["qwen/qwen3-27b", "llama-3.3-70b-versatile"]
+
+REQUEST_POLISH_PROMPT = (
+    "You are a buyer request editor for a second-hand marketplace in India. "
+    "Rewrite the buyer's raw input into a clean, natural request starting with 'I need'. "
+    "Rules:\n"
+    "1. Start the title with an action noun (no 'I need' in title, just the item name).\n"
+    "2. Description starts with 'I am looking for' or 'I need' — 1-2 sentences max.\n"
+    "3. Use ONLY what the buyer mentioned. Do NOT add price or condition if not given.\n"
+    "4. Output ONLY JSON: {\"title\": \"...\", \"description\": \"...\"}\n"
+    "5. No explanations, no markdown, no extra text."
+)
 
 router = APIRouter(prefix="/requests", tags=["Requests"])
 
 REQUEST_TTL_DAYS = 14
+
+
+# ─── AI Polish ────────────────────────────────────────────────────────────────
+
+@router.post("/ai-polish")
+async def ai_polish_request(
+    raw_input: str,
+    current_user: User = Depends(get_current_user),
+):
+    user_prompt = f"Buyer's raw input: {raw_input}\n\nGenerate the title and description JSON."
+    async with httpx.AsyncClient(timeout=15.0) as client:
+        for model in POLISH_MODELS:
+            try:
+                resp = await client.post(
+                    GROQ_URL,
+                    headers={"Authorization": f"Bearer {GROQ_API_KEY}"},
+                    json={
+                        "model": model,
+                        "messages": [
+                            {"role": "system", "content": REQUEST_POLISH_PROMPT},
+                            {"role": "user", "content": user_prompt},
+                        ],
+                        "max_tokens": 150,
+                        "temperature": 0.2,
+                    },
+                )
+                resp.raise_for_status()
+                text = resp.json()["choices"][0]["message"]["content"].strip()
+                if text:
+                    import json as _json
+                    # Strip markdown code fences if present
+                    clean = text.strip().lstrip("```json").lstrip("```").rstrip("```").strip()
+                    parsed = _json.loads(clean)
+                    return {"title": parsed.get("title", ""), "description": parsed.get("description", "")}
+            except Exception as e:
+                print(f"[request-ai-polish] model={model} failed: {e}")
+    from fastapi import HTTPException
+    raise HTTPException(status_code=500, detail="AI polish failed. Please try again.")
 
 
 def request_query():

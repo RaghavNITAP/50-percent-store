@@ -9,4 +9,5 @@ export const requestsApi = {
   fulfill: (id) => api.post(`/requests/${id}/fulfill`),
   renew: (id) => api.post(`/requests/${id}/renew`),
   close: (id) => api.delete(`/requests/${id}`),
+  aiPolish: (rawInput) => api.post(`/requests/ai-polish?raw_input=${encodeURIComponent(rawInput)}`),
 };

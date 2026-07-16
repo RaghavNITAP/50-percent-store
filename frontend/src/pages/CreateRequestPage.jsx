@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Tag } from "lucide-react";
+import { Tag, Sparkles, Loader2 } from "lucide-react";
 import { requestsApi } from "../api/requests";
 import { categoriesApi } from "../api/listings";
 import { useAuthStore } from "../store/authStore";
@@ -20,6 +20,8 @@ export default function CreateRequestPage() {
 
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [polishing, setPolishing] = useState(false);
+  const [aiInput, setAiInput] = useState("");
   const [form, setForm] = useState({
     title: "",
     description: "",
@@ -36,6 +38,21 @@ export default function CreateRequestPage() {
   }, []);
 
   const set = (field, val) => setForm((f) => ({ ...f, [field]: val }));
+
+  const handleAiPolish = async () => {
+    if (!aiInput.trim()) return toast.error("Describe what you need first");
+    setPolishing(true);
+    try {
+      const res = await requestsApi.aiPolish(aiInput);
+      if (res.data.title) set("title", res.data.title);
+      if (res.data.description) set("description", res.data.description);
+      toast.success("AI filled in the details!");
+    } catch {
+      toast.error("AI polish failed, fill manually");
+    } finally {
+      setPolishing(false);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -74,6 +91,28 @@ export default function CreateRequestPage() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+
+          {/* AI Polish */}
+          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100 rounded-2xl p-4">
+            <p className="text-xs font-semibold text-blue-700 mb-2 flex items-center gap-1.5">
+              <Sparkles size={13} /> Describe in plain language — AI will fill the form
+            </p>
+            <textarea
+              value={aiInput}
+              onChange={(e) => setAiInput(e.target.value)}
+              placeholder="e.g. need a cricket bat size 6 under 2000 rupees good condition..."
+              rows={2}
+              className="w-full px-3 py-2 text-sm rounded-xl border border-blue-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400/30 resize-none"
+            />
+            <button
+              type="button"
+              onClick={handleAiPolish}
+              disabled={polishing || !aiInput.trim()}
+              className="mt-2 w-full flex items-center justify-center gap-1.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-xs font-semibold py-2 rounded-xl transition"
+            >
+              {polishing ? <><Loader2 size={13} className="animate-spin" /> Generating...</> : <><Sparkles size={13} /> Fill with AI</>}
+            </button>
+          </div>
 
           {/* Title */}
           <div>
