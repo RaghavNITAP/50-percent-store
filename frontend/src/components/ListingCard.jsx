@@ -25,6 +25,10 @@ export default function ListingCard({ listing }) {
             <img
               src={primaryImage.cloudinary_url}
               alt={listing.title}
+              onError={(e) => {
+                e.target.onerror = null; // prevent infinite loop
+                e.target.src = `https://picsum.photos/seed/${listing.id}/500/500`;
+              }}
               className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-300"
             />
           ) : (
