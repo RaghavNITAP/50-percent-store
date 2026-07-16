@@ -269,6 +269,7 @@ async def get_listing(
 async def list_listings(
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
+    sort_by: str = Query("recent"),
     category_id: Optional[UUID] = None,
     condition: Optional[str] = None,
     min_price: Optional[float] = None,
@@ -292,6 +293,15 @@ async def list_listings(
     if seller_id:
         filters.append(Listing.seller_id == seller_id)
 
+    # ── Ordering ──────────────────────────────────────────────────────────────
+    if sort_by == "price_asc":
+        order = Listing.reselling_price.asc()
+    elif sort_by == "price_desc":
+        order = Listing.reselling_price.desc()
+    else:
+        # "recent" and "nearest" (nearest needs user location, fall back to recent for anon)
+        order = Listing.created_at.desc()
+
     count_result = await db.execute(
         select(func.count()).select_from(Listing).where(and_(*filters))
     )
@@ -300,7 +310,7 @@ async def list_listings(
     result = await db.execute(
         listing_query()
         .where(and_(*filters))
-        .order_by(Listing.created_at.desc())
+        .order_by(order)
         .offset((page - 1) * page_size)
         .limit(page_size)
     )
