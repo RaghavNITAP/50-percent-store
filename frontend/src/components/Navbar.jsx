@@ -17,7 +17,7 @@ export default function Navbar() {
     }`;
 
   return (
-    <nav className="sticky top-0 z-50 bg-white border-b border-zinc-100 shadow-sm">
+    <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-zinc-200/60 shadow-sm">
       <div className="max-w-6xl mx-auto px-4 lg:px-8 h-14 flex items-center justify-between">
 
         {/* Logo */}
@@ -43,7 +43,8 @@ export default function Navbar() {
               {user.role !== "buyer" && (
                 <Link
                   to="/sell"
-                  className="ml-2 flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white px-3.5 py-2 rounded-xl text-sm font-semibold transition-colors"
+                  className="ml-2 flex items-center gap-1.5 bg-[#0052FF] hover:bg-[#0041CC] text-white px-3.5 py-2 rounded-xl text-sm font-semibold transition-colors"
+                  style={{ boxShadow: "0 4px 20px rgba(0,82,255,0.35)" }}
                 >
                   <Plus size={15} strokeWidth={2.5} />
                   Sell
@@ -60,7 +61,7 @@ export default function Navbar() {
               </Link>
               <Link
                 to="/register"
-                className="ml-1 flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-colors"
+                className="ml-1 flex items-center gap-1.5 bg-[#0052FF] hover:bg-[#0041CC] text-white px-4 py-2 rounded-xl text-sm font-semibold transition-colors"
               >
                 Get started
               </Link>

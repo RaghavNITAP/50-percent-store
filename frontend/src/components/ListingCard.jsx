@@ -2,10 +2,10 @@ import { Link } from "react-router-dom";
 import { MapPin } from "lucide-react";
 
 const conditionConfig = {
-  new:  { label: "New",  cls: "bg-emerald-50 text-emerald-700" },
-  good: { label: "Good", cls: "bg-blue-50 text-blue-600" },
-  fair: { label: "Fair", cls: "bg-amber-50 text-amber-700" },
-  poor: { label: "Poor", cls: "bg-red-50 text-red-600" },
+  new:  { label: "New",  cls: "bg-green-50 text-green-700 border border-green-200" },
+  good: { label: "Good", cls: "bg-green-50 text-green-700 border border-green-200" },
+  fair: { label: "Fair", cls: "bg-amber-50 text-amber-700 border border-amber-200" },
+  poor: { label: "Poor", cls: "bg-red-50 text-red-500 border border-red-200" },
 };
 
 export default function ListingCard({ listing }) {
@@ -17,14 +17,8 @@ export default function ListingCard({ listing }) {
 
   return (
     <Link to={`/listing/${listing.id}`} className="group block">
-      <div
-        className="bg-white rounded-xl overflow-hidden border border-zinc-100 transition-all duration-200"
-        style={{
-          boxShadow: "var(--shadow-sm)",
-        }}
-        onMouseEnter={(e) => (e.currentTarget.style.boxShadow = "var(--shadow-md)")}
-        onMouseLeave={(e) => (e.currentTarget.style.boxShadow = "var(--shadow-sm)")}
-      >
+      <div className="bg-white rounded-xl overflow-hidden border border-gray-100 shadow-sm transition-all duration-200 group-hover:shadow-[0_8px_30px_rgba(0,82,255,0.12)] group-hover:-translate-y-1 active:scale-[0.98]">
+
         {/* Image */}
         <div className="aspect-square bg-zinc-50 overflow-hidden relative">
           {primaryImage ? (
@@ -39,16 +33,19 @@ export default function ListingCard({ listing }) {
             </div>
           )}
 
-          {/* Discount badge */}
+          {/* Discount badge — glow pill */}
           {discount && discount > 0 && (
-            <span className="absolute top-2 left-2 bg-blue-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-lg">
+            <span
+              className="absolute top-2 left-2 bg-[#0052FF] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-lg"
+              style={{ boxShadow: "0 2px 8px rgba(0,82,255,0.4)" }}
+            >
               -{discount}%
             </span>
           )}
 
-          {/* Negotiable badge */}
+          {/* Negotiable badge — neutral */}
           {listing.is_negotiable && (
-            <span className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm text-zinc-700 text-[10px] font-semibold px-1.5 py-0.5 rounded-lg border border-zinc-200">
+            <span className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm text-gray-500 text-[10px] font-medium px-1.5 py-0.5 rounded-lg border border-gray-300">
               Nego
             </span>
           )}
@@ -56,34 +53,33 @@ export default function ListingCard({ listing }) {
 
         {/* Info */}
         <div className="p-2.5">
-          <p className="text-sm font-semibold text-zinc-900 truncate leading-snug">
+          {/* Title */}
+          <p className="text-sm font-medium text-zinc-900 truncate capitalize leading-snug">
             {listing.title}
           </p>
 
+          {/* Price row */}
           <div className="flex items-baseline gap-1.5 mt-1">
-            <p className="text-base font-bold text-zinc-900">
+            <p className="text-lg font-bold text-zinc-900">
               ₹{listing.reselling_price.toLocaleString()}
             </p>
             {listing.original_price && (
-              <p className="text-xs text-zinc-400 line-through">
+              <p className="text-sm text-gray-400 line-through">
                 ₹{listing.original_price.toLocaleString()}
               </p>
             )}
           </div>
 
+          {/* Bottom row — condition chip + trust + location */}
           <div className="flex items-center justify-between mt-1.5">
             <span className={`text-[10px] px-1.5 py-0.5 rounded-md font-semibold ${condition.cls}`}>
               {condition.label}
             </span>
             <div className="flex items-center gap-1.5 min-w-0">
               {listing.seller?.trust_score != null && (
-                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${
-                  listing.seller.trust_score >= 85 ? "bg-emerald-50 text-emerald-700" :
-                  listing.seller.trust_score >= 70 ? "bg-blue-50 text-blue-600" :
-                  listing.seller.trust_score >= 50 ? "bg-amber-50 text-amber-700" :
-                  "bg-red-50 text-red-600"
-                }`}>
-                  ★ {listing.seller.trust_score}
+                <span className="text-[10px] text-zinc-500 flex items-center gap-0.5">
+                  <span className="text-yellow-400 font-bold">★</span>
+                  {listing.seller.trust_score}
                 </span>
               )}
               {(listing.seller?.locality || listing.seller?.city) && (

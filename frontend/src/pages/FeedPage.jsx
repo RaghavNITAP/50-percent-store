@@ -185,7 +185,7 @@ export default function FeedPage() {
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             placeholder="Search anything... 'red Nike shoes', 'iPhone 13'..."
-            className="w-full pl-10 pr-10 py-3 bg-white border border-zinc-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition"
+            className="w-full pl-10 pr-10 py-3 bg-white/90 backdrop-blur-sm border border-blue-100 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-[#0052FF]/20 focus:border-[#0052FF]/40 shadow-sm transition"
           />
           {inputValue && (
             <button type="button" onClick={clearSearch}
@@ -202,7 +202,7 @@ export default function FeedPage() {
               onClick={() => setShowFilters((v) => !v)}
               className={`flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-xl border transition ${
                 showFilters || activeFilterCount > 0
-                  ? "bg-blue-600 text-white border-blue-600"
+                  ? "bg-[#0052FF] text-white border-[#0052FF]"
                   : "bg-white text-zinc-600 border-zinc-200 hover:border-zinc-400"
               }`}
             >
@@ -237,7 +237,7 @@ export default function FeedPage() {
                     onClick={() => setFilter("condition", c.value)}
                     className={`px-3 py-1.5 rounded-xl text-xs font-medium border transition ${
                       filters.condition === c.value
-                        ? "bg-blue-600 text-white border-blue-600"
+                        ? "bg-[#0052FF] text-white border-[#0052FF] shadow-[0_2px_12px_rgba(0,82,255,0.35)]"
                         : "bg-zinc-50 text-zinc-600 border-zinc-200 hover:border-zinc-400"
                     }`}
                   >
@@ -256,7 +256,7 @@ export default function FeedPage() {
                     onClick={() => setFilter("category_id", "")}
                     className={`flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-medium border transition ${
                       !filters.category_id
-                        ? "bg-blue-600 text-white border-blue-600"
+                        ? "bg-[#0052FF] text-white border-[#0052FF] shadow-[0_2px_12px_rgba(0,82,255,0.35)]"
                         : "bg-zinc-50 text-zinc-600 border-zinc-200 hover:border-zinc-400"
                     }`}
                   >
@@ -268,7 +268,7 @@ export default function FeedPage() {
                       onClick={() => setFilter("category_id", String(cat.id))}
                       className={`flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-medium border transition ${
                         filters.category_id === String(cat.id)
-                          ? "bg-blue-600 text-white border-blue-600"
+                          ? "bg-[#0052FF] text-white border-[#0052FF] shadow-[0_2px_12px_rgba(0,82,255,0.35)]"
                           : "bg-zinc-50 text-zinc-600 border-zinc-200 hover:border-zinc-400"
                       }`}
                     >
@@ -292,7 +292,7 @@ export default function FeedPage() {
                     onClick={() => setFilter("is_negotiable", opt.value)}
                     className={`px-3 py-1.5 rounded-xl text-xs font-medium border transition ${
                       filters.is_negotiable === opt.value
-                        ? "bg-blue-600 text-white border-blue-600"
+                        ? "bg-[#0052FF] text-white border-[#0052FF] shadow-[0_2px_12px_rgba(0,82,255,0.35)]"
                         : "bg-zinc-50 text-zinc-600 border-zinc-200 hover:border-zinc-400"
                     }`}
                   >
@@ -340,7 +340,7 @@ export default function FeedPage() {
                 onClick={() => { setSortBy(opt.value); setPage(1); }}
                 className={`flex-shrink-0 px-3.5 py-1.5 rounded-full text-xs font-medium border transition-all ${
                   sortBy === opt.value
-                    ? "bg-blue-600 text-white border-blue-600 shadow-sm shadow-blue-200"
+                    ? "bg-[#0052FF] text-white border-[#0052FF] shadow-[0_2px_12px_rgba(0,82,255,0.35)]"
                     : "bg-white text-zinc-600 border-zinc-200 hover:border-zinc-400"
                 }`}
               >

@@ -41,7 +41,7 @@ export default function BottomNav() {
   if (!user) {
     return (
       <nav
-        className="lg:hidden fixed bottom-0 inset-x-0 z-50 bg-white border-t border-zinc-100"
+        className="lg:hidden fixed bottom-0 inset-x-0 z-50 bg-white/80 backdrop-blur-md border-t border-zinc-200/60"
         style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
       >
         <div className="flex items-stretch h-16">
@@ -60,10 +60,13 @@ export default function BottomNav() {
             onClick={() => navigate("/login")}
             className="flex flex-col items-center justify-center flex-1"
           >
-            <div className="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-200/60 -mt-5">
+            <div
+              className="w-12 h-12 bg-[#0052FF] rounded-2xl flex items-center justify-center -mt-5"
+              style={{ boxShadow: "0 4px 20px rgba(0,82,255,0.45)" }}
+            >
               <LogIn size={20} className="text-white" strokeWidth={2.5} />
             </div>
-            <span className="text-[10px] font-medium text-blue-600 mt-0.5">Sign in</span>
+            <span className="text-[10px] font-medium text-[#0052FF] mt-0.5">Sign in</span>
           </button>
 
           <button onClick={() => navigate("/register")} className={tab(null)}>
@@ -80,7 +83,7 @@ export default function BottomNav() {
 
   return (
     <nav
-      className="lg:hidden fixed bottom-0 inset-x-0 z-50 bg-white border-t border-zinc-100"
+      className="lg:hidden fixed bottom-0 inset-x-0 z-50 bg-white/80 backdrop-blur-md border-t border-zinc-200/60"
       style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
     >
       <div className="flex items-stretch h-16">
@@ -106,7 +109,10 @@ export default function BottomNav() {
 
         {isSeller && (
           <Link to="/sell" className="flex flex-col items-center justify-center flex-1">
-            <div className="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-200/60 -mt-5">
+            <div
+              className="w-12 h-12 bg-[#0052FF] rounded-2xl flex items-center justify-center -mt-5"
+              style={{ boxShadow: "0 4px 20px rgba(0,82,255,0.45)" }}
+            >
               <Plus size={22} className="text-white" strokeWidth={2.5} />
             </div>
           </Link>
