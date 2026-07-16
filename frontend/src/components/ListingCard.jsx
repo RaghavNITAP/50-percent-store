@@ -17,7 +17,7 @@ export default function ListingCard({ listing }) {
 
   return (
     <Link to={`/listing/${listing.id}`} className="group block">
-      <div className="bg-white rounded-xl overflow-hidden border border-gray-100 shadow-sm transition-all duration-200 group-hover:shadow-[0_8px_30px_rgba(0,82,255,0.12)] group-hover:-translate-y-1 active:scale-[0.98]">
+      <div className="bg-white rounded-xl overflow-hidden border border-gray-100 shadow-[0_4px_20px_rgba(0,82,255,0.08)] transition-all duration-200 group-hover:shadow-[0_8px_30px_rgba(0,82,255,0.15)] group-hover:-translate-y-1 active:scale-[0.98]">
 
         {/* Image */}
         <div className="aspect-square bg-zinc-50 overflow-hidden relative">

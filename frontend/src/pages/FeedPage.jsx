@@ -185,7 +185,7 @@ export default function FeedPage() {
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             placeholder="Search anything... 'red Nike shoes', 'iPhone 13'..."
-            className="w-full pl-10 pr-10 py-3 bg-white/90 backdrop-blur-sm border border-blue-100 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-[#0052FF]/20 focus:border-[#0052FF]/40 shadow-sm transition"
+            className="w-full pl-10 pr-10 py-3 bg-white border border-gray-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-[#0052FF]/20 focus:border-[#0052FF]/40 shadow-sm transition"
           />
           {inputValue && (
             <button type="button" onClick={clearSearch}
