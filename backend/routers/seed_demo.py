@@ -244,10 +244,17 @@ REQUESTS_BY_SELLER = [
 
 
 async def get_or_create_category(db: AsyncSession, name: str, slug: str, icon: str) -> uuid.UUID:
+    # Check by slug first
     res = await db.execute(select(Category).where(Category.slug == slug))
     cat = res.scalar_one_or_none()
     if cat:
         return cat.id
+    # Check by name (unique constraint) before inserting
+    res = await db.execute(select(Category).where(Category.name == name))
+    cat = res.scalar_one_or_none()
+    if cat:
+        return cat.id
+    # Safe to insert
     cat = Category(id=uuid.uuid4(), name=name, slug=slug, icon=icon)
     db.add(cat)
     await db.flush()
