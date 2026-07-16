@@ -254,13 +254,13 @@ async def get_or_create_category(db: AsyncSession, name: str, slug: str, icon: s
     return cat.id
 
 
-@router.post("/seed")
+@router.get("/seed")
 async def seed_demo(
-    x_seed_secret: str = Header(..., alias="X-Seed-Secret"),
+    secret: str = "",
     db: AsyncSession = Depends(get_db),
 ):
-    if x_seed_secret != SEED_SECRET:
-        raise HTTPException(status_code=403, detail="Invalid seed secret")
+    if secret != SEED_SECRET:
+        raise HTTPException(status_code=403, detail="Invalid seed secret — add ?secret=demo1234 to the URL")
 
     # ── Ensure categories exist ────────────────────────────────────────────────
     cat_ids = {
