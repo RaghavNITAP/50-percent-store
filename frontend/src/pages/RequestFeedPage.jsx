@@ -122,7 +122,8 @@ export default function RequestFeedPage() {
       setRequests(res.data.items);
       setTotal(res.data.total);
     } catch {
-      toast.error("Failed to load requests");
+      // Silently fail — show empty state with retry, not a blocking toast
+      if (!showRefreshing) setRequests([]);
     } finally {
       setLoading(false);
       setRefreshing(false);

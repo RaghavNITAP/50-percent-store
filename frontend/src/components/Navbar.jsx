@@ -27,10 +27,12 @@ export default function Navbar() {
 
         {/* Desktop nav */}
         <div className="hidden lg:flex items-center gap-1">
+          {/* Always visible */}
+          <Link to="/" className={iconClass("/")}><Home size={20} /></Link>
+          <Link to="/requests" className={iconClass("/requests")}><ClipboardList size={20} /></Link>
+
           {user ? (
             <>
-              <Link to="/" className={iconClass("/")}><Home size={20} /></Link>
-              <Link to="/requests" className={iconClass("/requests")}><ClipboardList size={20} /></Link>
               <Link to="/chat" className={`relative ${iconClass("/chat")}`}>
                 <MessageCircle size={20} />
                 {unreadCount > 0 && (
@@ -52,7 +54,7 @@ export default function Navbar() {
             <>
               <Link
                 to="/login"
-                className="px-4 py-2 text-sm font-medium text-zinc-600 hover:text-zinc-900 transition"
+                className="ml-2 px-4 py-2 text-sm font-medium text-zinc-600 hover:text-zinc-900 transition"
               >
                 Sign in
               </Link>
